@@ -14,6 +14,10 @@
 (def touchable-highlight (r/adapt-react-class (.-TouchableHighlight ReactNative)))
 (def list-view (r/adapt-react-class (.-ListView ReactNative)))
 (def ds (ReactNative.ListView.DataSource. #js{:rowHasChanged (fn[a b] false)}))
+(def linking (.-Linking ReactNative))
+
+(defn open-url! [url]
+  (.openURL linking url))
 
 (def logo-img (js/require "./images/cljs.png"))
 
@@ -24,20 +28,34 @@
                                          [text @row]]))))
 (defn story-row
   [story]
-  [view {
-         :style {:flex-direction "row"
-                 :margin 10}}
-   [view {:style {:flex 1
-                  :align-items "center"
-                  :justify-content "center"}}
-    [text {:style {:font-size 30}
-           :adjusts-font-size-to-fit true
-           :minimum-font-scale .5
-           } (str (:points story))]]
-   [view {:style {:flex 7
-                  :justify-content "center"
-                  :align-items "flex-start"}}
-    [text {:style {:font-size 20}}(str (:title story))]]])
+  [touchable-highlight {:on-press #(do
+                                     (dispatch [:read-story (:id story)])
+                                     (open-url! (:url story)))}
+   [view {:style {:flex-direction "row"
+                  :margin 10}}
+    [view {:style {:flex 1
+                   :padding 5
+                   :align-items "center"
+                   :justify-content "center"}}
+     [text {:style {:font-size 20
+                    :font-weight "bold"
+                    :color "#f26522"}}
+      (str (:points story))]]
+    [view {:style {:flex 7
+                   :flex-direction "column"
+                   :justify-content "center"
+                   :align-items "flex-start"}}
+     [text {:style {:font-size 20
+                    :color (if (:read? story) "gray" "black")}} (str (:title story))]
+     [view {:style {:flex-direction "row"
+                    :justify-content "space-between"
+                    :flex 1}}
+      [view [text {:style {:font-size 12 :color "gray"}} (str "by " (:user story))]]
+      [view [text {:style {:font-size 12 :color "gray"}} (:time_ago story)]]
+      [view [text {:style {:font-size 12 :color "gray"}} "|"]]
+      [view [text {:style {:font-size 12 :color "gray"}} (str (:comments_count story) " comments")]]]]] ])
+
+
 
 (defn story-list
   []
@@ -59,7 +77,8 @@
 (defn app-root []
   (let [greeting (subscribe [:get-greeting])]
     (fn []
-      [view {:style {:flex-direction "column"}}
+      [view {:style {:flex-direction "column"
+                     :background-color "#f6f6ef"}}
        [story-list]])))
 
 (defn init []

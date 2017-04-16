@@ -30,10 +30,13 @@
    app-db))
 
 (reg-event-db
- :set-greeting
+ :read-story
  validate-spec
- (fn [db [_ value]]
-   (assoc db :greeting value)))
+ (fn [db [_ story-id]]
+   (let [stories (get-in db [:front-page :front-page-stories])
+         updated-stories (map #(if (= story-id (:id %)) (assoc % :read? true) %) stories)]
+     (println updated-stories)
+     (assoc-in db [:front-page :front-page-stories] updated-stories))))
 
 (reg-event-fx
  :loaded-front-page-stories
