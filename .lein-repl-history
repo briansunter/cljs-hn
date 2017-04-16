@@ -1,2 +1,4 @@
 (start-fighweel "ios")
 (start-figwheel "ios")
+re-natal use-ios-device simulator
+(start-figwheel "ios")

@@ -39,7 +39,6 @@
  :loaded-front-page-stories
  validate-spec
  (fn [cofx [_ stories]]
-   (println stories)
    {:db (-> (update-in (:db cofx) [:front-page :front-page-stories] #(apply conj % stories))
             (update-in [:front-page :current-page-num] inc))}))
 

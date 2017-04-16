@@ -15,21 +15,29 @@
 (def list-view (r/adapt-react-class (.-ListView ReactNative)))
 (def ds (ReactNative.ListView.DataSource. #js{:rowHasChanged (fn[a b] false)}))
 
-(defn list-view-source [v]
-  (let [res #js[]]
-    (doseq [item v]
-      (.push res (r/atom item)))
-    (r/atom (js->clj res))))
-
 (def logo-img (js/require "./images/cljs.png"))
-
-(defn alert [title]
-  (.alert (.-Alert ReactNative) title))
 
 (def row-comp (r/reactify-component (fn[props]
                                       (let [row (props :row)]
-                                        [touchable-highlight {:style {:border-top-width 1 :border-color "#000"} :on-press #(alert (str @row))}
+                                        [touchable-highlight {:style {:border-top-width 2
+                                                                      :border-color "#000"}}
                                          [text @row]]))))
+(defn story-row
+  [story]
+  [view {
+         :style {:flex-direction "row"
+                 :margin 10}}
+   [view {:style {:flex 1
+                  :align-items "center"
+                  :justify-content "center"}}
+    [text {:style {:font-size 30}
+           :adjusts-font-size-to-fit true
+           :minimum-font-scale .5
+           } (str (:points story))]]
+   [view {:style {:flex 7
+                  :justify-content "center"
+                  :align-items "flex-start"}}
+    [text {:style {:font-size 20}}(str (:title story))]]])
 
 (defn story-list
   []
@@ -38,36 +46,23 @@
       [list-view {:dataSource (.cloneWithRows ds (clj->js @stories))
                   :render-row (fn[row]
                                 (r/as-element
-                                 [view [text (:title (js->clj row :keywordize-keys true))]]))
+                                 [view [story-row (js->clj row :keywordize-keys true)]]))
                   :renderSeparator (fn [section-id row-id]
                                      (r/as-element
                                       [view {:key (str section-id "-" row-id)
                                              :style {:height 0.5
-                                                     :margin-left 10
-                                                     :margin-right 10
                                                      :background-color "#efefef"}}]))
                   :on-end-reached (fn [_] (dispatch [:load-front-page-stories]))
-                  :onEndReachedNumberThreshold 100
-                  :style nil}]
-      ;; #_[view
-      ;;    (for [s @stories]
-      ;;      ^{:key (:id s)}
-      ;;      [view [text (:title s)]])]
-      )))
+                  :onEndReachedNumberThreshold 500
+                  :style nil}])))
 
 (defn app-root []
   (let [greeting (subscribe [:get-greeting])]
     (fn []
-      [view {:style {:flex-direction "column" :margin 40 :align-items "center"}}
-       [text {:style {:font-size 30 :font-weight "100" :margin-bottom 20 :text-align "center"}} @greeting]
-       [image {:source logo-img
-               :style  {:width 80 :height 80 :margin-bottom 30}}]
-       [touchable-highlight {:style {:background-color "#999" :padding 10 :border-radius 5}
-                             :on-press #(dispatch [:load-front-page-stories 0])}
-        [text {:style {:color "white" :text-align "center" :font-weight "bold"}} "press me"]]
-       [story-list]
-       ])))
+      [view {:style {:flex-direction "column"}}
+       [story-list]])))
 
 (defn init []
   (dispatch-sync [:initialize-db])
+  (dispatch [:load-front-page-stories])
   (.registerComponent app-registry "hackernews" #(r/reactify-component app-root)))
