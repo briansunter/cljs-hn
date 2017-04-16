@@ -35,7 +35,6 @@
  (fn [db [_ story-id]]
    (let [stories (get-in db [:front-page :front-page-stories])
          updated-stories (map #(if (= story-id (:id %)) (assoc % :read? true) %) stories)]
-     (println updated-stories)
      (assoc-in db [:front-page :front-page-stories] updated-stories))))
 
 (reg-event-fx
@@ -43,7 +42,8 @@
  validate-spec
  (fn [cofx [_ stories]]
    {:db (-> (update-in (:db cofx) [:front-page :front-page-stories] #(apply conj % stories))
-            (update-in [:front-page :current-page-num] inc))}))
+            (update-in [:front-page :current-page-num] inc)
+            (assoc-in [:front-page :is-loading?] false))}))
 
 ;; -- Effects --
 
@@ -52,11 +52,13 @@
 (reg-event-fx
  :load-front-page-stories
  (fn [{:keys [db]} [_]]
-   {:db db
-    :http-xhrio {:method          :get
-                 :uri             hn-api
-                 :params {:page (get-in db [:front-page :current-page-num])}
-                 :timeout         8000
-                 :response-format (ajax/json-response-format {:keywords? true})
-                 :on-success      [:loaded-front-page-stories]
-                 :on-failure      [:failed-loading-front-page-stories]}}))
+   (if (not (get-in db [:front-page :is-loading?]))
+     {:db (assoc-in db [:front-page :is-loading?] true)
+      :http-xhrio {:method          :get
+                   :uri             hn-api
+                   :params {:page (get-in db [:front-page :current-page-num])}
+                   :timeout         8000
+                   :response-format (ajax/json-response-format {:keywords? true})
+                   :on-success      [:loaded-front-page-stories]
+                   :on-failure      [:failed-loading-front-page-stories]}}
+     {:db db})))
