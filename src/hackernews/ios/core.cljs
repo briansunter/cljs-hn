@@ -4,8 +4,7 @@
             [day8.re-frame.http-fx]
             [hackernews.events]
             [hackernews.subs]
-            [hackernews.ios.components.story-row :as sr]
-            ))
+            [hackernews.ios.components.story-row :as sr]))
 
 (def ReactNative (js/require "react-native"))
 
@@ -14,37 +13,37 @@
 (def view (r/adapt-react-class (.-View ReactNative)))
 (def image (r/adapt-react-class (.-Image ReactNative)))
 (def list-view (r/adapt-react-class (.-ListView ReactNative)))
-(def ds (ReactNative.ListView.DataSource. #js{:rowHasChanged (fn[a b] false)}))
 (def linking (.-Linking ReactNative))
 
-(defn open-url! [url]
+(defn- open-url! [url]
   (.openURL linking url))
 
-(defn on-row-press
-  []
-  (dispatch [:read-story (:id story)])
-  (open-url! (:url story)))
+(defn- on-row-press
+  [{:keys [story-id url]}]
+  (fn []
+    (dispatch [:read-story story-id])
+    (open-url! url)))
 
-(defn row->story-row
-  [row]
-  [sr/story-row (js->clj row :keywordize-keys true) on-row-press])
-
+(defn- row-separator
+  [section-id row-id]
+  [view {:key (str section-id "-" row-id)
+         :style {:height 0.5
+                 :background-color "#efefef"}}])
 (defn story-list
   []
-  (let [stories (subscribe [:get-front-page-stories])]
+  (let [stories (subscribe [:get-front-page-stories])
+        ds (ReactNative.ListView.DataSource. #js{:rowHasChanged (fn[a b] false)})]
     (fn []
       [list-view {:dataSource (.cloneWithRows ds (clj->js @stories))
-                  :render-row (fn[row]
-                                (r/as-element
-                                 [view (row->story-row row)]))
+                  :render-row (fn [js-story]
+                                (let [story (js->clj js-story :keywordize-keys true)]
+                                  (r/as-element
+                                   [view [sr/story-row story {::sr/on-press (on-row-press story)}]])))
                   :renderSeparator (fn [section-id row-id]
                                      (r/as-element
-                                      [view {:key (str section-id "-" row-id)
-                                             :style {:height 0.5
-                                                     :background-color "#efefef"}}]))
-                  :on-end-reached (fn [_] (dispatch [:load-front-page-stories]))
-                  :onEndReachedNumberThreshold 500
-                  :style nil}])))
+                                      [row-separator section-id row-id]))
+                  :on-end-reached #(dispatch [:load-front-page-stories])
+                  :onEndReachedNumberThreshold 500}])))
 
 (defn app-root []
   (fn []
