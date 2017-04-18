@@ -41,9 +41,8 @@
  :loaded-front-page-stories
  validate-spec
  (fn [cofx [_ stories]]
-   {:db (-> (update-in (:db cofx) [:front-page :front-page-stories] #(apply conj % stories))
-            (update-in [:front-page :current-page-num] inc)
-            (assoc-in [:front-page :is-loading?] false))}))
+   {:db (-> (update-in (:db cofx) [:front-page :front-page-stories] #(concat % stories))
+            (update-in [:front-page :current-page-num] inc))}))
 
 ;; -- Effects --
 
@@ -52,13 +51,10 @@
 (reg-event-fx
  :load-front-page-stories
  (fn [{:keys [db]} [_]]
-   (if (not (get-in db [:front-page :is-loading?]))
-     {:db (assoc-in db [:front-page :is-loading?] true)
-      :http-xhrio {:method          :get
-                   :uri             hn-api
-                   :params {:page (get-in db [:front-page :current-page-num])}
-                   :timeout         8000
-                   :response-format (ajax/json-response-format {:keywords? true})
-                   :on-success      [:loaded-front-page-stories]
-                   :on-failure      [:failed-loading-front-page-stories]}}
-     {:db db})))
+   {:http-xhrio {:method          :get
+                 :uri             hn-api
+                 :params {:page (get-in db [:front-page :current-page-num])}
+                 :timeout         8000
+                 :response-format (ajax/json-response-format {:keywords? true})
+                 :on-success      [:loaded-front-page-stories]
+                 :on-failure      [:failed-loading-front-page-stories]}}))
