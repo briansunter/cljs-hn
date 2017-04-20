@@ -4,4 +4,4 @@
 (reg-sub
  :get-front-page-stories
  (fn [db _]
-   (get-in db [:stories])))
+   (:stories db)))

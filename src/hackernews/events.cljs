@@ -39,7 +39,7 @@
  :read-story
  validate-spec
  (fn [db [_ story-id]]
-   (let [stories (get-in db [:stories])
+   (let [stories (:stories db)
          updated-stories (map #(if (= story-id (:id %)) (assoc % :read? true) %) stories)]
      (assoc-in db [:stories] updated-stories))))
 
@@ -68,7 +68,7 @@
 (reg-event-fx
  :open-story-external
  (fn [cofx [_ story-id]]
-   (let [story (story-with-id story-id (get-in (:db cofx)[:stories]))]
+   (let [story (story-with-id story-id (get-in cofx [:db :stories]))]
      {:dispatch [:read-story story-id]
      :open-url-external (:url story)})))
 
