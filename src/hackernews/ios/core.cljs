@@ -13,16 +13,10 @@
 (def view (r/adapt-react-class (.-View ReactNative)))
 (def image (r/adapt-react-class (.-Image ReactNative)))
 (def list-view (r/adapt-react-class (.-ListView ReactNative)))
-(def linking (.-Linking ReactNative))
-
-(defn- open-url! [url]
-  (.openURL linking url))
 
 (defn- on-row-press
   [{:keys [story-id url]}]
-  (fn []
-    (dispatch [:read-story story-id])
-    (open-url! url)))
+  (dispatch [:read-story story-id]))
 
 (defn- row-separator
   [section-id row-id]
@@ -38,7 +32,7 @@
                   :render-row (fn [js-story]
                                 (let [story (js->clj js-story :keywordize-keys true)]
                                   (r/as-element
-                                   [view [sr/story-row story {::sr/on-press (on-row-press story)}]])))
+                                   [sr/story-row story {::sr/on-press #(dispatch [:open-story-external (:id story)])}])))
                   :renderSeparator (fn [section-id row-id]
                                      (r/as-element
                                       [row-separator section-id row-id]))
