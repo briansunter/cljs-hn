@@ -18,12 +18,11 @@
 (s/def ::read? boolean?)
 (s/def ::story (s/keys :req-un [::id ::title ::points] :opt-un [::read?]))
 (s/def ::stories (s/coll-of ::story))
-(s/def ::front-page-stories ::stories)
 (s/def ::current-page-num int?)
-(s/def ::front-page (s/keys :req-un [::front-page-stories] :opt-un [::current-page-num]))
-(s/def ::app-db (s/keys :req-un [::greeting ::front-page]))
+(s/def ::front-page (s/keys :req-un [::current-page-num]))
+(s/def ::app-db (s/keys :req-un [::stories ::front-page]))
 
 ;; initial state of app-db
 (def app-db {:greeting "Hello Clojure in iOS and Android!"
-             :front-page {:front-page-stories []
-                          :current-page-num 1}})
+             :stories []
+             :front-page {:current-page-num 1}})

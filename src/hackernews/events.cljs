@@ -39,15 +39,15 @@
  :read-story
  validate-spec
  (fn [db [_ story-id]]
-   (let [stories (get-in db [:front-page :front-page-stories])
+   (let [stories (get-in db [:stories])
          updated-stories (map #(if (= story-id (:id %)) (assoc % :read? true) %) stories)]
-     (assoc-in db [:front-page :front-page-stories] updated-stories))))
+     (assoc-in db [:stories] updated-stories))))
 
 (reg-event-fx
  :loaded-front-page-stories
  validate-spec
  (fn [cofx [_ stories]]
-   {:db (-> (update-in (:db cofx) [:front-page :front-page-stories] #(concat % stories))
+   {:db (-> (update-in (:db cofx) [:stories] #(concat % stories))
             (update-in [:front-page :current-page-num] inc))}))
 
 ;; -- Effects --
@@ -68,7 +68,7 @@
 (reg-event-fx
  :open-story-external
  (fn [cofx [_ story-id]]
-   (let [story (story-with-id story-id (get-in (:db cofx) [:front-page :front-page-stories]))]
+   (let [story (story-with-id story-id (get-in (:db cofx)[:stories]))]
      {:dispatch [:read-story story-id]
      :open-url-external (:url story)})))
 
