@@ -15,17 +15,24 @@
                     :background-color "#efefef"}}])
 
 (defn story-list
-  []
+  [{:keys [stories on-press on-end-reached]}]
+  (let [ds (rn/ReactNative.ListView.DataSource. #js{:rowHasChanged (fn[a b] false)})]
+    [rn/list-view {:dataSource (.cloneWithRows ds (clj->js stories))
+                   :render-row (fn [js-story]
+                                 (let [story (js->clj js-story :keywordize-keys true)]
+                                   (r/as-element
+                                    [sr/story-row story {::sr/on-press (on-press (:id story))}])))
+                   :renderSeparator (fn [section-id row-id]
+                                      (r/as-element
+                                       [row-separator section-id row-id]))
+                   :on-end-reached on-end-reached
+                   :onEndReachedNumberThreshold 500}]))
+
+(defn story-scene
+  [{:keys [navigator]}]
   (let [stories (subscribe [:get-front-page-stories])
-        ds (rn/ReactNative.ListView.DataSource. #js{:rowHasChanged (fn[a b] false)})]
-    (fn []
-      [rn/list-view {:dataSource (.cloneWithRows ds (clj->js @stories))
-                     :render-row (fn [js-story]
-                                   (let [story (js->clj js-story :keywordize-keys true)]
-                                     (r/as-element
-                                      [sr/story-row story {::sr/on-press #(dispatch [:open-story-external (:id story)])}])))
-                     :renderSeparator (fn [section-id row-id]
-                                        (r/as-element
-                                         [row-separator section-id row-id]))
-                     :on-end-reached (fn [] (dispatch [:load-front-page-stories]))
-                     :onEndReachedNumberThreshold 500}])))
+        on-press (fn [story-id] #(dispatch [:open-story-external story-id]))
+        on-end-reached #(dispatch [:load-front-page-stories])]
+    [story-list {:stories @stories
+                 :on-press on-press
+                 :on-end-reached on-end-reached}]))

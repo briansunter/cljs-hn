@@ -5,14 +5,19 @@
             [hackernews.events]
             [hackernews.subs]
             [hackernews.shared.story-list :as sl]
-            [hackernews.shared.react-native.core :as rn]
-            ))
+            [hackernews.shared.react-native.core :as rn]))
 
 (defn app-root []
   (fn []
-    [rn/view {:style {:flex-direction "column"
-                   :background-color "#f6f6ef"}}
-     [sl/story-list]]))
+    [rn/navigator
+     {:initial-route {:title "Front Page" :component (r/reactify-component sl/story-scene)}
+      :interactive-pop-gesture-enabled true
+      :navigation-bar-hidden true
+      :style {:position"absolute"
+              :top 0
+              :left 0
+              :bottom 0
+              :right 0}}]))
 
 (defn init []
   (dispatch-sync [:initialize-db])

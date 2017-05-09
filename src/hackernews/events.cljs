@@ -70,7 +70,7 @@
  (fn [cofx [_ story-id]]
    (let [story (story-with-id story-id (get-in cofx [:db :stories]))]
      {:dispatch [:read-story story-id]
-     :open-url-external (:url story)})))
+      :open-url-external (:url story)})))
 
 (defn- open-url! [url]
   (.openURL linking url))
