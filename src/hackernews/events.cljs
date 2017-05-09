@@ -41,13 +41,13 @@
  (fn [db [_ story-id]]
    (let [stories (:stories db)
          updated-stories (map #(if (= story-id (:id %)) (assoc % :read? true) %) stories)]
-     (assoc-in db [:stories] updated-stories))))
+     (assoc db :stories updated-stories))))
 
 (reg-event-fx
  :loaded-front-page-stories
  validate-spec
  (fn [cofx [_ stories]]
-   {:db (-> (update-in (:db cofx) [:stories] #(concat % stories))
+   {:db (-> (update (:db cofx) :stories #(concat % stories))
             (update-in [:front-page :current-page-num] inc))}))
 
 ;; -- Effects --
