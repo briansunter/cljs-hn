@@ -4,13 +4,13 @@
             [day8.re-frame.http-fx]
             [hackernews.events]
             [hackernews.subs]
-            [hackernews.shared.story-list :as sl]
+            [hackernews.shared.scenes.front-page.front-page :as fp]
             [hackernews.shared.react-native.core :as rn]))
 
 (defn app-root []
   (fn []
     [rn/navigator
-     {:initial-route {:title "Front Page" :component (r/reactify-component sl/story-scene)}
+     {:initial-route {:title "Front Page" :component (r/reactify-component fp/front-page)}
       :interactive-pop-gesture-enabled true
       :navigation-bar-hidden true
       :style {:position"absolute"

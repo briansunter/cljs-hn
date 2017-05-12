@@ -1,4 +1,4 @@
-(ns hackernews.shared.story-row
+(ns hackernews.shared.scenes.front-page.components.story-row
   (:require [cljs.spec :as s]
             [hackernews.db :as db]
             [reagent.core :as r]
@@ -32,16 +32,13 @@
    [subtitle-view "|"]
    [subtitle-view (str comments_count " comments")]])
 
-(s/def ::on-press (s/fspec :args nil))
 (s/def ::story-row-props (s/keys :req [::on-press]))
 
 (s/fdef story-row
         :args (s/cat :story ::db/story :story-row-props ::story-row-props))
 
 (defn story-row
-  [{:keys [id points title read?] :as story} {:keys [::on-press]}]
-  [rn/touchable-highlight {:on-press on-press
-                           :key id}
+  [{:keys [id points title read?] :as story}]
    [rn/view {:style {:flex-direction "row"
                      :margin 10}}
     [points-view points]
@@ -53,4 +50,4 @@
                :style {:font-size 20
                        :color (if read? "grey" "black")}}
       title]
-     [detail-view story]]]])
+     [detail-view story]]])
