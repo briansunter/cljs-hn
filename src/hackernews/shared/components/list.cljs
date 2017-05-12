@@ -19,13 +19,13 @@
 (s/fdef list-view :args (s/cat :props ::list-view-props))
 
 (defn list-view
-  [{:keys [items render-row on-press on-end-reached]}]
+  [{:keys [::items ::render-row ::on-press ::on-end-reached]}]
   (let [ds (rn/ReactNative.ListView.DataSource. #js{:rowHasChanged (fn[a b] false)})]
     [rn/list-view {:dataSource (.cloneWithRows ds (clj->js items))
                    :render-row (fn [js-item]
                                  (let [item (js->clj js-item :keywordize-keys true)]
                                    (r/as-element
-                                    [rn/touchable-highlight {:on-press (on-press (:id item))
+                                    [rn/touchable-highlight {:on-press #(on-press (:id item))
                                                              :key (:id item)}
                                      (render-row item)])))
                    :renderSeparator (fn [section-id row-id]
