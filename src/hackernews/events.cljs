@@ -50,20 +50,38 @@
    {:db (-> (update (:db cofx) :stories #(concat % stories))
             (update-in [:front-page :current-page-num] inc))}))
 
+(reg-event-fx
+ :loaded-story-comments
+ validate-spec
+ (fn [{:keys [db]} [_ {:keys [id comments]}]]
+   (let [stories (:stories db)
+         updated-stories (map #(if (= id (:id %)) (assoc % :comments comments) %) stories)]
+   {:db (assoc db :stories updated-stories)})))
+
 ;; -- Effects --
 
-(def hn-api "https://node-hnapi.herokuapp.com/news")
+(def hn-api "https://node-hnapi.herokuapp.com")
 
 (reg-event-fx
  :load-front-page-stories
  (fn [{:keys [db]} [_]]
    {:http-xhrio {:method          :get
-                 :uri             hn-api
+                 :uri             (str hn-api "/news")
                  :params {:page  (get-in db [:front-page :current-page-num])}
                  :timeout         8000
                  :response-format (ajax/json-response-format {:keywords? true})
                  :on-success      [:loaded-front-page-stories]
                  :on-failure      [:failed-loading-front-page-stories]}}))
+
+(reg-event-fx
+ :load-story-comments
+ (fn [{:keys [db]} [_ story-id]]
+   {:http-xhrio {:method          :get
+                 :uri             (str hn-api "/item/" story-id)
+                 :timeout         8000
+                 :response-format (ajax/json-response-format {:keywords? true})
+                 :on-success      [:loaded-story-comments]
+                 :on-failure      [:failed-loading-story-comments]}}))
 
 (reg-event-fx
  :open-story-external

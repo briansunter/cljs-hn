@@ -1,4 +1,4 @@
-(ns hackernews.shared.scenes.front-page.components.story-row
+(ns hackernews.shared.components.story-row
   (:require [cljs.spec :as s]
             [hackernews.db :as db]
             [reagent.core :as r]
@@ -32,10 +32,8 @@
    [subtitle-view "|"]
    [subtitle-view (str comments_count " comments")]])
 
-(s/def ::story-row-props (s/keys :req [::on-press]))
-
 (s/fdef story-row
-        :args (s/cat :story ::db/story :story-row-props ::story-row-props))
+        :args (s/cat :story ::db/story ))
 
 (defn story-row
   [{:keys [id points title read?] :as story}]
