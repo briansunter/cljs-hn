@@ -11,7 +11,9 @@
 
 (defn comment-row
   [comment]
-  [rn/view {:style {:padding 10}}[rn/text comment]])
+  [rn/view {:style {:padding 15}}
+   [rn/text {:style {:fontSize 18}}
+    comment]])
 
 (defn collect-comments
   [comment]
@@ -27,6 +29,4 @@
        {:style {:padding-top 10}}
        [sr/story-row @story]
        [l/list-view {::l/items (collect-comments @story)
-                     ::l/on-press #()
-                     ::l/render-row  comment-row
-                     ::l/on-end-reached #()}]])))
+                     ::l/render-row  comment-row}]])))
