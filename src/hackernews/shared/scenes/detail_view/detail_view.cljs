@@ -12,7 +12,8 @@
 (defn comment-row
   [comment]
   [rn/view {:style {:padding 15}}
-   [rn/html-view {:value comment}]])
+   [rn/html-view {:value comment
+                  :stylesheet {:p {:font-size 18}}}]])
 
 (defn collect-comments
   [comment]
