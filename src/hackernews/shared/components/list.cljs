@@ -25,9 +25,12 @@
                    :render-row (fn [js-item]
                                  (let [item (js->clj js-item :keywordize-keys true)]
                                    (r/as-element
-                                    [rn/touchable-highlight {:on-press #(on-press (:id item))
-                                                             :key (:id item)}
-                                     (render-row item)])))
+                                    (if on-press
+                                      [rn/touchable-highlight {:on-press #(on-press (:id item))
+                                                               :key (:id item)}
+                                       (render-row item)]
+                                      [rn/view
+                                       (render-row item)]))))
                    :renderSeparator (fn [section-id row-id]
                                       (r/as-element
                                        [row-separator section-id row-id]))
