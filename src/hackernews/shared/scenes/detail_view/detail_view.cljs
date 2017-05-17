@@ -12,14 +12,13 @@
 (defn comment-row
   [comment]
   [rn/view {:style {:padding 15}}
-   [rn/text {:style {:fontSize 18}}
-    comment]])
+   [rn/html-view {:value comment}]])
 
 (defn collect-comments
   [comment]
   (->> comment
-  (tree-seq map? :comments)
-  (map :content)))
+       (tree-seq map? :comments)
+       (map :content)))
 
 (defn detail-view
   [{:keys [id]}]

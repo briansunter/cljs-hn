@@ -10,7 +10,8 @@
   "modules": [
     "realm",
     "realm/react-native",
-    "react-navigation"
+    "react-navigation",
+    "react-native-htmlview/HTMLView"
   ],
   "imageDirs": [
     "images"
