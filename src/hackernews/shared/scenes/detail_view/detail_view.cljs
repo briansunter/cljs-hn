@@ -5,6 +5,11 @@
             [hackernews.shared.components.list :as l]
             [re-frame.core :refer [subscribe dispatch]]))
 
+(defn story-header
+  [story]
+  [rn/touchable-highlight {:on-press #(dispatch [:open-story-external (:id story)])}
+   (sr/story-row story)])
+
 (defn comment-row
   [{:keys [user time_ago content]}]
   [rn/view {:style {:padding 15}}
@@ -18,6 +23,6 @@
   [{:keys [id]}]
   [rn/view
    {:style {:margin-top 10}}
-   [sr/story-row @(subscribe [:get-story id])]
+   [story-header @(subscribe [:get-story id])]
    [l/list-view {::l/items @(subscribe [:story-flat-comments id])
                  ::l/render-row  comment-row}]])
