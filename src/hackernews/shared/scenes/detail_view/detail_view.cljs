@@ -6,18 +6,18 @@
             [re-frame.core :refer [subscribe dispatch]]))
 
 (defn comment-row
-  [comment]
-  [rn/view {:style {:margin 10}}
-   [rn/text {:style {:padding 5
-                     :color "#f26522"}}
-    (str (:user comment) " " (:time_ago comment))]
-   [rn/html-view {:value (:content comment)
+  [{:keys [user time_ago content]}]
+  [rn/view {:style {:padding 15}}
+   [rn/text {:style {:color "#f26522"
+                     :margin-bottom 10}}
+    (str user " " time_ago)]
+   [rn/html-view {:value content
                   :stylesheet {:p {:font-size 18}}}]])
 
 (defn detail-view
   [{:keys [id]}]
   [rn/view
-   {:style {:padding-top 10}}
+   {:style {:margin-top 10}}
    [sr/story-row @(subscribe [:get-story id])]
    [l/list-view {::l/items @(subscribe [:story-flat-comments id])
                  ::l/render-row  comment-row}]])
