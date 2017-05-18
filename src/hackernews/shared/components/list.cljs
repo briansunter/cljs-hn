@@ -22,6 +22,7 @@
   [{:keys [::items ::render-row ::on-press ::on-end-reached]}]
   (let [ds (rn/ReactNative.ListView.DataSource. #js{:rowHasChanged (fn[a b] false)})]
     [rn/list-view {:dataSource (.cloneWithRows ds (clj->js items))
+                   :content-container-style {:padding-bottom 100}
                    :render-row (fn [js-item]
                                  (let [item (js->clj js-item :keywordize-keys true)]
                                    (r/as-element
