@@ -6,7 +6,20 @@
  (fn [db _]
    (:stories db)))
 
+(defn- story-by-id
+  [id stories]
+  (first (filter #(= id (:id %)) stories)))
+
 (reg-sub
  :get-story
  (fn [db [_ story-id]]
-   (first (filter #(= story-id (:id %)) (:stories db)))))
+   (story-by-id story-id (:stories db))))
+
+(defn- collect-comments
+  [comment]
+  (filter :content (tree-seq map? :comments comment)))
+
+(reg-sub
+ :story-flat-comments
+ (fn [db [_ story-id]]
+   (collect-comments (story-by-id story-id (:stories db)))))
