@@ -33,7 +33,7 @@
    [subtitle-view (str comments_count " comments")]])
 
 (s/fdef story-row
-        :args (s/cat :story ::db/story ))
+        :args (s/cat :story ::db/story))
 
 (defn story-row
   [{:keys [id points title read?] :as story}]

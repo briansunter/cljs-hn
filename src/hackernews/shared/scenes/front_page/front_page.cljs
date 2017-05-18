@@ -18,9 +18,14 @@
   (navigate nav "Detail" d/detail-view story-id)
   #_(dispatch [:open-story-external story-id]))
 
+(defn- render-front-page-row
+  [story on-press]
+  [rn/touchable-highlight {:on-press #(on-press (:id story))
+                           :key (:id story)}
+   (sr/story-row story)])
+
 (defn front-page
   [{:keys [navigator]}]
   [l/list-view {::l/items @(subscribe [:get-front-page-stories])
-                ::l/on-press (partial on-press navigator)
-                ::l/render-row sr/story-row
+                ::l/render-row #(render-front-page-row % (partial on-press navigator))
                 ::l/on-end-reached #(dispatch [:load-front-page-stories])}])

@@ -14,24 +14,18 @@
 (s/def ::items (s/coll-of ::item))
 (s/def ::render-row (s/fspec :args (s/cat :item ::item)))
 (s/def ::on-end-reached (s/fspec :args nil))
-(s/def ::on-press (s/fspec :args (s/cat :id ::db/id)))
-(s/def ::list-view-props (s/keys :req [::items ::render-row] :opt [::on-press ::on-end-reached]))
+(s/def ::list-view-props (s/keys :req [::items ::render-row] :opt [::on-end-reached]))
 (s/fdef list-view :args (s/cat :props ::list-view-props))
 
 (defn list-view
-  [{:keys [::items ::render-row ::on-press ::on-end-reached]}]
-  (let [ds (rn/ReactNative.ListView.DataSource. #js{:rowHasChanged (fn[a b] false)})]
+  [{:keys [::items ::render-row ::on-end-reached]}]
+  (let [ds (rn/ReactNative.ListView.DataSource. #js{:rowHasChanged (fn [a b] false)})]
     [rn/list-view {:dataSource (.cloneWithRows ds (clj->js items))
                    :content-container-style {:padding-bottom 100}
                    :render-row (fn [js-item]
                                  (let [item (js->clj js-item :keywordize-keys true)]
                                    (r/as-element
-                                    (if on-press
-                                      [rn/touchable-highlight {:on-press #(on-press (:id item))
-                                                               :key (:id item)}
-                                       (render-row item)]
-                                      [rn/view
-                                       (render-row item)]))))
+                                    (render-row item))))
                    :renderSeparator (fn [section-id row-id]
                                       (r/as-element
                                        [row-separator section-id row-id]))
