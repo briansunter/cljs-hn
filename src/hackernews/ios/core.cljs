@@ -14,7 +14,7 @@
 
 (defn app-root []
   (fn []
-    [ios-nav/navigation-root initial-route]))
+    [ios-nav/navigation-root]))
 
 (defn init []
   (dispatch-sync [:initialize-db])

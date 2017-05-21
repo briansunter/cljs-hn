@@ -36,3 +36,8 @@
    (-> (get-in db [:detail-page :story-id])
        (story-by-id (:stories db))
        collect-comments)))
+
+(reg-sub
+ :nav-state
+ (fn [db _]
+   (get-in db [:navigation :router-state])))

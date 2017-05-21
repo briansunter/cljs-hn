@@ -11,7 +11,8 @@
     "realm",
     "realm/react-native",
     "react-navigation",
-    "react-native-htmlview/HTMLView"
+    "react-native-htmlview/HTMLView",
+    "react-navigation"
   ],
   "imageDirs": [
     "images"

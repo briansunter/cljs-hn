@@ -12,3 +12,6 @@
 (def touchable-highlight (r/adapt-react-class (.-TouchableHighlight ReactNative)))
 (def navigator (r/adapt-react-class (.-NavigatorIOS ReactNative)))
 (def linking (.-Linking ReactNative))
+(def react-navigation (js/require "react-navigation"))
+(def stack-navigator (.-StackNavigator react-navigation))
+(def add-navigation-helpers (.-addNavigationHelpers react-navigation))

@@ -3,14 +3,15 @@
             [reagent.core :as r]
             [cljs.spec :as s]
             [clojure.set :refer [rename-keys]]
-            [hackernews.shared.scenes.detail-view.detail-view :as sd]
-            [reagent.core :as r]))
+            [camel-snake-kebab.core :refer [->camelCase ->kebab-case]]
+            [re-frame.core :refer [subscribe ]]
+            [hackernews.shared.scenes.detail-view.detail-view :as sd]))
 
 (s/def ::component identity)
 (s/def ::title string?)
 (s/def ::pass-props map?)
 
-(s/def ::route (s/keys :req [::component ::title ::pass-props]))
+(s/def ::route (s/keys :req [::component ::title] :opt [::pass-props]))
 
 (s/fdef push-route!
         :args (s/cat :nav identity :route ::route))
@@ -44,7 +45,7 @@
 
 (defn- wrap-navigation-container
   [route]
-  (let [props (::pass-props props)]
+  (let [props (::pass-props route)]
     (update route ::component #(-> % navigation-container r/reactify-component))))
 
 (defn push-story-detail-route!
@@ -53,14 +54,31 @@
                                            ::component sd/detail-view
                                            ::pass-props {:id story-id}})))
 
+(defn foo
+  []
+  [rn/view [rn/text "foo"]])
+
+(defn bar
+  []
+  [rn/view [rn/text "bar"]])
+
+(def routes {:front-page {:screen (r/reactify-component foo)}
+              :story-detail {:screen (r/reactify-component bar)}})
+
+(def sn (r/adapt-react-class (rn/stack-navigator (clj->js routes))))
+
+(defn update-keys
+  [m f]
+  (into {} (map (fn [[k v]] {(f k) v}) m)))
+
+(defn format-nav-state
+  [ns]
+  (clj->js (update ns :routes (fn [rs] (map #(update-keys % ->camelCase) rs)))))
+
 (defn navigation-root
-  [initial-route]
-  [rn/navigator
-   {:initial-route (clj->js (wrap-navigation-container initial-route))
-    :interactive-pop-gesture-enabled true
-    :navigation-bar-hidden true
-    :style {:position "absolute"
-            :top 0
-            :left 0
-            :bottom 0
-            :right 0}}])
+  []
+  (let [nav-state (subscribe [:nav-state])]
+    (.log js/console (format-nav-state @nav-state))
+    [sn {:navigation (rn/add-navigation-helpers
+                      (clj->js
+                      {"state" (format-nav-state @nav-state)}))}]))
