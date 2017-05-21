@@ -20,9 +20,11 @@
                   :stylesheet {:p {:font-size 18}}}]])
 
 (defn detail-view
-  [{:keys [id]}]
-  [rn/view
-   {:style {:margin-top 10}}
-   [story-header @(subscribe [:get-story id])]
-   [l/list-view {::l/items @(subscribe [:story-flat-comments id])
-                 ::l/render-row  comment-row}]])
+  [_]
+  (let [current-story (subscribe [:current-story])
+        comments (subscribe [:current-story-flat-comments])]
+      [rn/view
+      {:style {:margin-top 10}}
+      [story-header @current-story]
+      [l/list-view {::l/items @comments
+                    ::l/render-row  comment-row}]]))

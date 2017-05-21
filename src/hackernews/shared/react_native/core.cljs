@@ -11,3 +11,4 @@
 (def list-view (r/adapt-react-class (.-ListView ReactNative)))
 (def touchable-highlight (r/adapt-react-class (.-TouchableHighlight ReactNative)))
 (def navigator (r/adapt-react-class (.-NavigatorIOS ReactNative)))
+(def linking (.-Linking ReactNative))

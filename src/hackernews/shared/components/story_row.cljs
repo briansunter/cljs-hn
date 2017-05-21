@@ -33,14 +33,14 @@
 
 (defn story-row
   [{:keys [id points title read?] :as story}]
-   [rn/view {:style {:flex-direction "row"
-                     :padding 10}}
-    [points-view points]
-    [rn/view {:style {:flex 7
-                      :flex-direction "column"
-                      :align-items "flex-start"}}
-     [rn/text {:key title
-               :style {:font-size 20
-                       :color (if read? "grey" "black")}}
-      title]
-     [detail-view story]]])
+  [rn/view {:style {:flex-direction "row"
+                    :padding 10}}
+   [points-view points]
+   [rn/view {:style {:flex 7
+                     :flex-direction "column"
+                     :align-items "flex-start"}}
+    [rn/text {:key title
+              :style {:font-size 20
+                      :color (if read? "grey" "black")}}
+     title]
+    [detail-view story]]])

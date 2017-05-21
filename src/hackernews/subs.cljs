@@ -23,3 +23,16 @@
  :story-flat-comments
  (fn [db [_ story-id]]
    (collect-comments (story-by-id story-id (:stories db)))))
+
+(reg-sub
+ :current-story
+ (fn [db _]
+   (-> (get-in db [:detail-page :story-id])
+       (story-by-id (:stories db)))))
+
+(reg-sub
+ :current-story-flat-comments
+ (fn [db _]
+   (-> (get-in db [:detail-page :story-id])
+       (story-by-id (:stories db))
+       collect-comments)))

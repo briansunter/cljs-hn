@@ -3,14 +3,15 @@
    [re-frame.core :refer [reg-event-db after reg-event-fx reg-cofx reg-fx]]
    [ajax.core :as ajax]
    [clojure.spec :as s]
+   [hackernews.ios.navigation :as ios-nav]
+   [hackernews.shared.react-native.core :as rn]
    [hackernews.db :as db :refer [app-db]]))
 
-(def ReactNative (js/require "react-native"))
-(def linking (.-Linking ReactNative))
 ;; -- Interceptors ------------------------------------------------------------
 ;;
 ;; See https://github.com/Day8/re-frame/blob/master/docs/Interceptors.md
 ;;
+
 (defn check-and-throw
   "Throw an exception if db doesn't have a valid spec."
   [spec db [event]]
@@ -22,6 +23,11 @@
   (if goog.DEBUG
     (after (partial check-and-throw ::db/app-db))
     []))
+
+(def logging
+  (after (fn [db [e]] (.log js/console "EVENT" e))))
+
+(def interceptors [validate-spec logging])
 
 ;; -- Handlers --------------------------------------------------------------
 
@@ -91,9 +97,21 @@
       :open-url-external (:url story)})))
 
 (defn- open-url! [url]
-  (.openURL linking url))
+  (.openURL rn/linking url))
 
 (reg-fx
  :open-url-external
  (fn [url]
    (open-url! url)))
+
+(reg-event-fx
+ :nav-story-detail
+ (fn [cofx [_ story-id]]
+   {:db (assoc-in (:db cofx) [:detail-page :story-id] story-id)
+    :dispatch [:load-story-comments story-id]
+    :ios-push-route story-id}))
+
+(reg-fx
+ :ios-push-route
+ (fn [story-id]
+   (ios-nav/push-story-detail-route! story-id)))

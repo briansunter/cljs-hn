@@ -23,7 +23,9 @@
 
 (s/def ::current-page-num int?)
 (s/def ::front-page (s/keys :req-un [::current-page-num]))
-(s/def ::app-db (s/keys :req-un [::stories ::front-page]))
+(s/def ::story-id ::id)
+(s/def ::detail-page (s/keys :req-un [::story-id]))
+(s/def ::app-db (s/keys :req-un [::stories ::front-page] :opt-un [::detail-page]))
 
 ;; initial state of app-db
 (def app-db {:greeting "Hello Clojure in iOS and Android!"

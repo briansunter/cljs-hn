@@ -15,6 +15,7 @@
 (s/def ::render-row (s/fspec :args (s/cat :item ::item)))
 (s/def ::on-end-reached (s/fspec :args nil))
 (s/def ::list-view-props (s/keys :req [::items ::render-row] :opt [::on-end-reached]))
+
 (s/fdef list-view :args (s/cat :props ::list-view-props))
 
 (defn list-view

@@ -4,20 +4,17 @@
             [day8.re-frame.http-fx]
             [hackernews.events]
             [hackernews.subs]
+            [hackernews.ios.navigation :as ios-nav]
             [hackernews.shared.scenes.front-page.front-page :as fp]
             [hackernews.shared.react-native.core :as rn]))
 
+(def initial-route
+  {::ios-nav/title "Front Page"
+   ::ios-nav/component fp/front-page})
+
 (defn app-root []
   (fn []
-    [rn/navigator
-     {:initial-route {:title "Front Page" :component (r/reactify-component fp/front-page)}
-      :interactive-pop-gesture-enabled true
-      :navigation-bar-hidden true
-      :style {:position"absolute"
-              :top 0
-              :left 0
-              :bottom 0
-              :right 0}}]))
+    [ios-nav/navigation-root initial-route]))
 
 (defn init []
   (dispatch-sync [:initialize-db])
