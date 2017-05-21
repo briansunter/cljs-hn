@@ -27,6 +27,7 @@
 (s/def ::detail-page (s/keys :req-un [::story-id]))
 
 (s/def ::route-name string?)
+(s/def ::params map?)
 (s/def ::route (s/keys :req-un [::route-name] :opt-un [::params]))
 (s/def ::routes (s/coll-of ::route))
 (s/def ::index int?)
@@ -37,7 +38,9 @@
 
 ;; initial state of app-db
 (def app-db {:greeting "Hello Clojure in iOS and Android!"
-             :navigation {:router-state {:routes [{:route-name "front-page" :key "front-page"}]
-                                         :index 0}}
+             :navigation {:router-state {:routes [{:route-name "front-page" :key "front-page"}
+                                                  {:route-name "story-detail" :key "story-detail"}
+                                                  ]
+                                         :index 1}}
              :stories []
              :front-page {:current-page-num 1}})

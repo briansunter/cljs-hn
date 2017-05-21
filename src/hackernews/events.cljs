@@ -115,3 +115,34 @@
  :ios-push-route
  (fn [story-id]
    (ios-nav/push-story-detail-route! story-id)))
+
+(defn dec-to-zero
+  "Same as dec if not zero"
+  [arg]
+  (if (< 0 arg)
+    (dec arg)
+    arg))
+
+(reg-event-db
+ :pop-stack-nav
+ validate-spec
+ (fn [db _]
+   (-> (update-in db [:navigation :router-state :index] dec-to-zero)
+        (update-in [:navigation :router-state :routes] pop))))
+
+(reg-event-db
+ :push-stack-nav
+ validate-spec
+ (fn [db [_ route-name]]
+   (-> (update-in db [:navigation :router-state :index] inc)
+       (update-in [:navigation :router-state :routes] #(conj % {:route-name "story-detail"} )))))
+
+(reg-event-fx
+ :nav/js
+ validate-spec
+ (fn [{:keys [db]} [_ type route-name params]]
+   (js/console.log "JS NAV" type)
+   {:dispatch (case type
+                "Navigation/BACK" [:pop-stack-nav]
+                "Navigate" [])
+    :db       db}))
