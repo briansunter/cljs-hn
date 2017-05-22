@@ -14,3 +14,4 @@
 (def react-navigation (js/require "react-navigation"))
 (def stack-navigator (.-StackNavigator react-navigation))
 (def add-navigation-helpers (.-addNavigationHelpers react-navigation))
+(def drawer-navigator (.-DrawerNavigator react-navigation))

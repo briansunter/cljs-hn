@@ -6,23 +6,30 @@
             [camel-snake-kebab.core :refer [->camelCase ->kebab-case]]
             [re-frame.core :refer [subscribe dispatch]]
             [hackernews.ui.scenes.front-page.core :as fp]
+            [hackernews.ui.components.story-row :as sr]
             [hackernews.ui.scenes.detail-view.core :as sd]))
 (defn foo
   []
   [rn/touchable-highlight {:on-press #(dispatch [:push-stack-nav "story-detail"])} [rn/text "foo"]])
 
 (defn bar
-  []
-  [rn/view [rn/text "bar"]])
+  [_]
+  [rn/view [rn/text "barasdfkajskldjflksjdflkjasdlkfjlskadjflkajdslkfjaslkdjfklasjdflk"]])
 
 (def routes {:front-page {:screen (r/reactify-component fp/front-page)}
-              :story-detail {:screen (r/reactify-component sd/detail-view)}})
+             :story-detail {:screen (r/reactify-component sd/detail-view)}})
 
-(def stack-navigator (rn/stack-navigator (clj->js routes)))
+(defn bas
+  []
+  [sr/story-row {:title "Man Bites dog" :points 100}])
+
+(def stack-navigator (rn/stack-navigator (clj->js routes) (clj->js {:navigationOptions {:headerTintColor "orange"
+                                                                                        :header (r/create-element (r/reactify-component foo))
+                                                                                        }})))
 
 #_(defn navigation-action
-  [a]
-  (.getActionForPathAndParams (.-router stack-navigator) a))
+    [a]
+    (.getActionForPathAndParams (.-router stack-navigator) a))
 
 (defn update-keys
   [m f]
