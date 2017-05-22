@@ -21,10 +21,10 @@
    [rn/html-view {:value content :stylesheet {:p {:font-size 18}}}]])
 
 (defn detail-view
-  [nav-props]
-  (let [current-story (subscribe [:current-story])
+  []
+  (let [detail-story (subscribe [:detail-story])
         comments (subscribe [:current-story-flat-comments])]
     [rn/view {:style {:margin-top 10}}
-     [story-header @current-story]
+     [story-header @detail-story]
      [l/list-view {::l/items @comments
                    ::l/render-row  comment-row}]]))

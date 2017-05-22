@@ -7,7 +7,7 @@
             [hackernews.ui.components.react-native.core :as rn]))
 
 (defn- on-press
-  [nav story-id]
+  [story-id]
   (dispatch [:nav-story-detail story-id]))
 
 (defn- front-page-row
@@ -19,5 +19,5 @@
 (defn front-page
   [{:keys [navigator]}]
   [l/list-view {::l/items @(subscribe [:get-front-page-stories])
-                ::l/render-row (partial front-page-row {:on-press (partial on-press navigator)})
+                ::l/render-row (partial front-page-row {:on-press (partial on-press )})
                 ::l/on-end-reached #(dispatch [:load-front-page-stories])}])

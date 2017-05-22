@@ -5,6 +5,7 @@
             [clojure.set :refer [rename-keys]]
             [camel-snake-kebab.core :refer [->camelCase ->kebab-case]]
             [re-frame.core :refer [subscribe dispatch]]
+            [hackernews.ui.scenes.front-page.core :as fp]
             [hackernews.ui.scenes.detail-view.core :as sd]))
 (defn foo
   []
@@ -14,8 +15,8 @@
   []
   [rn/view [rn/text "bar"]])
 
-(def routes {:front-page {:screen (r/reactify-component foo)}
-              :story-detail {:screen (r/reactify-component bar)}})
+(def routes {:front-page {:screen (r/reactify-component fp/front-page)}
+              :story-detail {:screen (r/reactify-component sd/detail-view)}})
 
 (def stack-navigator (rn/stack-navigator (clj->js routes)))
 

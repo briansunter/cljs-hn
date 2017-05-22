@@ -54,7 +54,8 @@
  validate-spec
  (fn [cofx [_ stories]]
    {:db (-> (update (:db cofx) :stories #(concat % stories))
-            (update-in [:front-page :current-page-num] inc))}))
+            (update-in [:front-page :current-page-num] inc))
+    }))
 
 (reg-event-fx
  :failed-loading-front-page-stories
@@ -119,12 +120,16 @@
  (fn [url]
    (open-url! url)))
 
+(defn push-nav-stack
+  [db route-name params]
+  (-> (update-in db [:navigation :router-state :index] inc)
+      (update-in [:navigation :router-state :routes] #(conj % {:route-name :story-detail :params params} ))))
+
 (reg-event-fx
  :nav-story-detail
  (fn [cofx [_ story-id]]
-   {:db (assoc-in (:db cofx) [:detail-page :story-id] story-id)
-    :dispatch [:load-story-comments story-id]
-    :ios-push-route story-id}))
+   {:db (push-nav-stack (:db cofx) :story-detail {:story-id story-id})
+    :dispatch [:load-story-comments story-id]}))
 
 (defn dec-to-zero
   "Same as dec if not zero"
@@ -143,9 +148,8 @@
 (reg-event-db
  :push-stack-nav
  validate-spec
- (fn [db [_ route-name]]
-   (-> (update-in db [:navigation :router-state :index] inc)
-       (update-in [:navigation :router-state :routes] #(conj % {:route-name "story-detail"} )))))
+ (fn [db [_ route-name params]]
+   (push-nav-stack db route-name params)))
 
 (reg-event-fx
  :nav/js
