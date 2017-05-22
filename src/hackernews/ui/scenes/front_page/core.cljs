@@ -1,10 +1,10 @@
-(ns hackernews.shared.scenes.front-page.front-page
+(ns hackernews.ui.scenes.front-page.core
   (:require [reagent.core :as r]
             [re-frame.core :refer [subscribe dispatch]]
-            [hackernews.shared.components.story-row :as sr]
-            [hackernews.shared.components.list :as l]
-            [hackernews.shared.scenes.detail-view.detail-view :as d]
-            [hackernews.shared.react-native.core :as rn]))
+            [hackernews.ui.components.story-row :as sr]
+            [hackernews.ui.components.list :as l]
+            [hackernews.ui.scenes.detail-view.core :as d]
+            [hackernews.ui.components.react-native.core :as rn]))
 
 (defn- on-press
   [nav story-id]

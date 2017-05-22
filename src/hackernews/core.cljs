@@ -1,12 +1,12 @@
-(ns hackernews.ios.core
+(ns hackernews.core
   (:require [reagent.core :as r :refer [atom]]
             [re-frame.core :refer [subscribe dispatch dispatch-sync]]
             [day8.re-frame.http-fx]
             [hackernews.events]
             [hackernews.subs]
-            [hackernews.ios.navigation :as ios-nav]
-            [hackernews.shared.scenes.front-page.front-page :as fp]
-            [hackernews.shared.react-native.core :as rn]))
+            [hackernews.navigation :as ios-nav]
+            [hackernews.ui.scenes.front-page.core :as fp]
+            [hackernews.ui.components.react-native.core :as rn]))
 
 (def initial-route
   {::ios-nav/title "Front Page"

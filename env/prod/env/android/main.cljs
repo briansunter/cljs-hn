@@ -1,6 +1,4 @@
  (ns env.android.main
-  (:require [hackernews.android.core :as core]))
+  (:require [hackernews.core :as core]))
 
  (core/init)
-
-
