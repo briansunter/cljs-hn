@@ -36,8 +36,7 @@
 
 ;; initial state of app-db
 (def app-db {:greeting "Hello Clojure in iOS and Android!"
-             :navigation {:router-state {:routes [{:route-name :front-page :key "front-page"}
-                                                  {:route-name :story-detail :key "story-detail"}]
-                                         :index 1}}
+             :navigation {:router-state {:routes [{:route-name :front-page :key "front-page"}]
+                                         :index 0}}
              :stories []
              :front-page {:current-page-num 1}})

@@ -5,6 +5,7 @@
 
 (def html-view (r/adapt-react-class (.-default (js/require "react-native-htmlview/HTMLView"))))
 (def app-registry (.-AppRegistry ReactNative))
+(def touchable-opacity (r/adapt-react-class (.-TouchableOpacity ReactNative)))
 (def text (r/adapt-react-class (.-Text ReactNative)))
 (def view (r/adapt-react-class (.-View ReactNative)))
 (def image (r/adapt-react-class (.-Image ReactNative)))

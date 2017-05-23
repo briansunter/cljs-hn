@@ -14,7 +14,7 @@
   [{:keys [on-press]} story]
   [rn/touchable-highlight {:on-press #(on-press (:id story))
                            :key (:id story)}
-   (sr/story-row story)])
+   (sr/story-row {:story story})])
 
 (defn front-page
   [{:keys [navigator]}]

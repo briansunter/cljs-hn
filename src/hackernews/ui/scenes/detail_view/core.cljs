@@ -12,7 +12,7 @@
 (defn story-header
   [story]
   [rn/touchable-highlight {:on-press #(on-header-press (:id story))}
-   (sr/story-row story)])
+   (sr/story-row {:story story})])
 
 (defn comment-row
   [{:keys [user time_ago content]}]
@@ -25,6 +25,5 @@
   (let [detail-story (subscribe [:detail-story])
         comments (subscribe [:current-story-flat-comments])]
     [rn/view {:style {:margin-top 10}}
-     [story-header @detail-story]
      [l/list-view {::l/items @comments
                    ::l/render-row  comment-row}]]))

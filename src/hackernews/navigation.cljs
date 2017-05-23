@@ -8,28 +8,40 @@
             [hackernews.ui.scenes.front-page.core :as fp]
             [hackernews.ui.components.story-row :as sr]
             [hackernews.ui.scenes.detail-view.core :as sd]))
-(defn foo
-  []
-  [rn/touchable-highlight {:on-press #(dispatch [:push-stack-nav "story-detail"])} [rn/text "foo"]])
 
-(defn bar
-  [_]
-  [rn/view [rn/text "barasdfkajskldjflksjdflkjasdlkfjlskadjflkajdslkfjaslkdjfklasjdflk"]])
+#_(defn story-detail-header
+    []
+    (let [story (subscribe [:detail-story])]
 
-(def routes {:front-page {:screen (r/reactify-component fp/front-page)}
-             :story-detail {:screen (r/reactify-component sd/detail-view)}})
+      [rn/view {:style {:padding-top 20
+                        :padding 10
+                        :justify-content "center"
+                        :align-items "center"
+                        :flex-direction "row"
+                        :height 60}}
+       [rn/view  [rn/touchable-opacity {:on-press #(dispatch [:pop-stack-nav])
+                                        }
+                  [rn/text "back"]]]
+       [rn/view {
+                 :style {:justify-content "center"
+                         :flex 1
+                         :padding 10}}
+        [rn/text {:number-of-lines 1
+                  :style {:color "#f26522"
+                          :font-weight "bold"}}(:points @story)]]
 
-(defn bas
-  []
-  [sr/story-row {:title "Man Bites dog" :points 100}])
+       [rn/view {:flex 8}[rn/text (:title @story)]]]))
 
-(def stack-navigator (rn/stack-navigator (clj->js routes) (clj->js {:navigationOptions {:headerTintColor "orange"
-                                                                                        :header (r/create-element (r/reactify-component foo))
-                                                                                        }})))
+(def routes {:front-page {:screen (r/reactify-component fp/front-page)
+                          :navigationOptions {:title "Front Page"}}
+             :story-detail {:screen (r/reactify-component sd/detail-view)
+                            :navigationOptions (fn [_] (clj->js {:title (:title @(subscribe [:detail-story]))
+                                                                 :headerTitleStyle {:fontSize 12 :fontWeight :bold
+                                                                                    :numberOfLines 2}
+                                                                 }))}})
 
-#_(defn navigation-action
-    [a]
-    (.getActionForPathAndParams (.-router stack-navigator) a))
+
+(def stack-navigator (rn/stack-navigator (clj->js routes)))
 
 (defn update-keys
   [m f]
