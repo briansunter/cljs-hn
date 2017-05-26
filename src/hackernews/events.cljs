@@ -1,6 +1,6 @@
 (ns hackernews.events
   (:require
-   [re-frame.core :refer [reg-event-db after reg-event-fx reg-cofx reg-fx]]
+   [re-frame.core :refer [reg-event-db after reg-event-fx reg-cofx reg-fx dispatch]]
    [ajax.core :as ajax]
    [clojure.spec :as s]
    [hackernews.navigation :as ios-nav]
@@ -54,16 +54,14 @@
  validate-spec
  (fn [cofx [_ stories]]
    {:db (-> (update (:db cofx) :stories #(concat % stories))
-            (update-in [:front-page :current-page-num] inc))
-    }))
+            (update-in [:front-page :current-page-num] inc))}))
 
 (reg-event-fx
  :failed-loading-front-page-stories
  validate-spec
  (fn [cofx [_ error-response]]
    (throw (ex-info (str error-response "Failed loading stories") {:response error-response}))
-   {:db (:db cofx)}
-   ))
+   {:db (:db cofx)}))
 
 (reg-event-fx
  :loaded-story-comments
@@ -77,19 +75,47 @@
 
 (def hn-api "https://node-hnapi.herokuapp.com")
 
+(defn- url-encode
+  [string]
+  (some-> string str (js/encodeURIComponent) (.replace "+" "%20")))
+
+(defn- map->query
+  [m]
+  (some->> (seq m)
+           sort
+           (map (fn [[k v]]
+                  [(url-encode (name k))
+                   "="
+                   (url-encode (str v))]))
+           (interpose "&")
+           flatten
+           (apply str)))
+
 (defn fetch
-  [url params on-success]
-  (-> (js/fetch (str hn-api "/news" "?page=1") (clj->js params))
-      (.then js->clj)
-      (.then #(js/console.log %))
-      (.catch #(js/console.error %))))
+  [{:keys [url params method body on-success on-failure] :as request}]
+  (-> (str url "?" (map->query params))
+      (js/fetch (clj->js (select-keys request [:method :body])))
+      (.then #(.json %))
+      (.then #(js->clj % :keywordize-keys true))
+      (.then #(on-success %))
+      (.catch #(on-failure %))))
+
+(reg-fx
+ :fetch-http
+ (fn [{:as   request
+       :keys [url params method on-success on-failure]
+       :or   {on-success      [:http-no-on-success]
+              on-failure      [:http-no-on-failure]}}]
+   (fetch (assoc request
+                 :on-success #(dispatch (conj on-success %))
+                 :on-failure #(dispatch (conj on-failure %))))))
 
 (reg-event-fx
  :load-front-page-stories
  (fn [{:keys [db]} [_]]
-   {:http-xhrio {:method          :get
-                 :uri             (str hn-api "/news")
-                 :params {:page  (get-in db [:front-page :current-page-num])}
+   {:fetch-http {:method          :get
+                 :url             (str hn-api "/news")
+                 :params  {:page  (get-in db [:front-page :current-page-num])}
                  :timeout         8000
                  :response-format (ajax/json-response-format {:keywords? true})
                  :on-success      [:loaded-front-page-stories]
@@ -98,12 +124,12 @@
 (reg-event-fx
  :load-story-comments
  (fn [{:keys [db]} [_ story-id]]
-   {:http-xhrio {:method          :get
-                 :uri             (str hn-api "/item/" story-id)
-                 :timeout         8000
-                 :response-format (ajax/json-response-format {:keywords? true})
-                 :on-success      [:loaded-story-comments]
-                 :on-failure      [:failed-loading-story-comments]}}))
+   {:fetch-http{:method          :get
+                :url             (str hn-api "/item/" story-id)
+                :timeout         8000
+                :response-format (ajax/json-response-format {:keywords? true})
+                :on-success      [:loaded-story-comments]
+                :on-failure      [:failed-loading-story-comments]}}))
 
 (reg-event-fx
  :open-story-external
