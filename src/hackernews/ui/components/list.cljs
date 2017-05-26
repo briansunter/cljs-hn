@@ -1,8 +1,8 @@
-(ns hackernews.shared.components.list
+(ns hackernews.ui.components.list
   (:require [cljs.spec :as s]
             [reagent.core :as r]
             [hackernews.db :as db]
-            [hackernews.shared.react-native.core :as rn]))
+            [hackernews.ui.components.react-native.core :as rn]))
 
 (defn- row-separator
   [section-id row-id]

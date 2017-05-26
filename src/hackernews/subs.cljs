@@ -24,15 +24,29 @@
  (fn [db [_ story-id]]
    (collect-comments (story-by-id story-id (:stories db)))))
 
+(defn current-route
+  [db]
+  (let [{:keys [routes index]} (get-in db [:navigation :router-state])]
+    (nth routes index)))
+
+(defn detail-story
+  [db]
+  (-> (current-route db)
+      :params
+      :story-id
+      (story-by-id (:stories db))))
+
 (reg-sub
- :current-story
+ :detail-story
  (fn [db _]
-   (-> (get-in db [:detail-page :story-id])
-       (story-by-id (:stories db)))))
+   (detail-story db)))
 
 (reg-sub
  :current-story-flat-comments
  (fn [db _]
-   (-> (get-in db [:detail-page :story-id])
-       (story-by-id (:stories db))
-       collect-comments)))
+   (collect-comments (detail-story db))))
+
+(reg-sub
+ :nav-state
+ (fn [db _]
+   (get-in db [:navigation :router-state])))

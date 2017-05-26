@@ -3,8 +3,8 @@
    [re-frame.core :refer [reg-event-db after reg-event-fx reg-cofx reg-fx]]
    [ajax.core :as ajax]
    [clojure.spec :as s]
-   [hackernews.ios.navigation :as ios-nav]
-   [hackernews.shared.react-native.core :as rn]
+   [hackernews.navigation :as ios-nav]
+   [hackernews.ui.components.react-native.core :as rn]
    [hackernews.db :as db :refer [app-db]]))
 
 ;; -- Interceptors ------------------------------------------------------------
@@ -54,7 +54,16 @@
  validate-spec
  (fn [cofx [_ stories]]
    {:db (-> (update (:db cofx) :stories #(concat % stories))
-            (update-in [:front-page :current-page-num] inc))}))
+            (update-in [:front-page :current-page-num] inc))
+    }))
+
+(reg-event-fx
+ :failed-loading-front-page-stories
+ validate-spec
+ (fn [cofx [_ error-response]]
+   (throw (ex-info (str error-response "Failed loading stories") {:response error-response}))
+   {:db (:db cofx)}
+   ))
 
 (reg-event-fx
  :loaded-story-comments
@@ -67,6 +76,13 @@
 ;; -- Effects --
 
 (def hn-api "https://node-hnapi.herokuapp.com")
+
+(defn fetch
+  [url params on-success]
+  (-> (js/fetch (str hn-api "/news" "?page=1") (clj->js params))
+      (.then js->clj)
+      (.then #(js/console.log %))
+      (.catch #(js/console.error %))))
 
 (reg-event-fx
  :load-front-page-stories
@@ -104,14 +120,43 @@
  (fn [url]
    (open-url! url)))
 
+(defn push-nav-stack
+  [db route-name params]
+  (-> (update-in db [:navigation :router-state :index] inc)
+      (update-in [:navigation :router-state :routes] #(conj % {:route-name :story-detail :params params} ))))
+
 (reg-event-fx
  :nav-story-detail
  (fn [cofx [_ story-id]]
-   {:db (assoc-in (:db cofx) [:detail-page :story-id] story-id)
-    :dispatch [:load-story-comments story-id]
-    :ios-push-route story-id}))
+   {:db (push-nav-stack (:db cofx) :story-detail {:story-id story-id})
+    :dispatch [:load-story-comments story-id]}))
 
-(reg-fx
- :ios-push-route
- (fn [story-id]
-   (ios-nav/push-story-detail-route! story-id)))
+(defn dec-to-zero
+  "Same as dec if not zero"
+  [arg]
+  (if (< 0 arg)
+    (dec arg)
+    arg))
+
+(reg-event-db
+ :pop-stack-nav
+ validate-spec
+ (fn [db _]
+   (-> (update-in db [:navigation :router-state :index] dec-to-zero)
+        (update-in [:navigation :router-state :routes] pop))))
+
+(reg-event-db
+ :push-stack-nav
+ validate-spec
+ (fn [db [_ route-name params]]
+   (push-nav-stack db route-name params)))
+
+(reg-event-fx
+ :nav/js
+ validate-spec
+ (fn [{:keys [db]} [_ type route-name params]]
+   (js/console.log "JS NAV" type)
+   {:dispatch (case type
+                "Navigation/BACK" [:pop-stack-nav]
+                "Navigate" [])
+    :db       db}))
