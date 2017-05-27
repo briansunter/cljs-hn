@@ -4,6 +4,7 @@
    [ajax.core :as ajax]
    [clojure.spec :as s]
    [hackernews.navigation :as ios-nav]
+   [hackernews.api :as api]
    [hackernews.ui.components.react-native.core :as rn]
    [hackernews.db :as db :refer [app-db]]))
 
@@ -69,36 +70,11 @@
  (fn [{:keys [db]} [_ {:keys [id comments]}]]
    (let [stories (:stories db)
          updated-stories (map #(if (= id (:id %)) (assoc % :comments comments) %) stories)]
-   {:db (assoc db :stories updated-stories)})))
+     {:db (assoc db :stories updated-stories)})))
 
 ;; -- Effects --
 
 (def hn-api "https://node-hnapi.herokuapp.com")
-
-(defn- url-encode
-  [string]
-  (some-> string str (js/encodeURIComponent) (.replace "+" "%20")))
-
-(defn- map->query
-  [m]
-  (some->> (seq m)
-           sort
-           (map (fn [[k v]]
-                  [(url-encode (name k))
-                   "="
-                   (url-encode (str v))]))
-           (interpose "&")
-           flatten
-           (apply str)))
-
-(defn fetch
-  [{:keys [url params method body on-success on-failure] :as request}]
-  (-> (str url "?" (map->query params))
-      (js/fetch (clj->js (select-keys request [:method :body])))
-      (.then #(.json %))
-      (.then #(js->clj % :keywordize-keys true))
-      (.then #(on-success %))
-      (.catch #(on-failure %))))
 
 (reg-fx
  :fetch-http
@@ -106,9 +82,9 @@
        :keys [url params method on-success on-failure]
        :or   {on-success      [:http-no-on-success]
               on-failure      [:http-no-on-failure]}}]
-   (fetch (assoc request
-                 :on-success #(dispatch (conj on-success %))
-                 :on-failure #(dispatch (conj on-failure %))))))
+   (api/fetch (assoc request
+                     :on-success #(dispatch (conj on-success %))
+                     :on-failure #(dispatch (conj on-failure %))))))
 
 (reg-event-fx
  :load-front-page-stories
@@ -169,7 +145,7 @@
  validate-spec
  (fn [db _]
    (-> (update-in db [:navigation :router-state :index] dec-to-zero)
-        (update-in [:navigation :router-state :routes] pop))))
+       (update-in [:navigation :router-state :routes] pop))))
 
 (reg-event-db
  :push-stack-nav
