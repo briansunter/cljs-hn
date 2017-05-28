@@ -17,12 +17,16 @@
            (apply str)))
 
 (defn- fetch
-  [{:keys [url params method body on-success on-failure] :as request}]
+  [{:keys [url params method body on-success on-failure response-formatter]
+    :or {response-formatter identity}
+    :as request}]
   (.log js/console "fetching" (clj->js request))
   (-> (str url "?" (map->query params))
       (js/fetch (clj->js (select-keys request [:method :body])))
       (.then #(.json %))
-      (.then #(on-success (js->clj % :keywordize-keys true)))
+      (.then #(js->clj % :keywordize-keys true))
+      (.then response-formatter)
+      (.then #(on-success %))
       (.catch #(on-failure %))))
 
 #_(def result (atom nil))
