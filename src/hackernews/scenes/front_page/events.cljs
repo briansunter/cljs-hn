@@ -74,8 +74,13 @@
 
 (defn push-nav-stack
   [db route-name params]
-  (-> (update-in db [:navigation :router-state :index] inc)
-      (update-in [:navigation :router-state :routes] #(conj % {:route-name :story-detail :params params}))))
+  (let [current-routes (get-in db [:navigation :router-state :routes])
+        last-route (last current-routes)
+        next-route {:route-name :story-detail :params params}]
+    (if (= (:route-name last-route) (:route-name next-route))
+      db
+      (-> (update-in db [:navigation :router-state :index] inc)
+          (update-in [:navigation :router-state :routes] #(conj % next-route))))))
 
 (reg-event-fx
  :nav-story-detail
