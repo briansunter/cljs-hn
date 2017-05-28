@@ -19,5 +19,5 @@
 (defn front-page
   [{:keys [navigator]}]
   [l/list-view {::l/items @(subscribe [:get-front-page-stories])
-                ::l/render-row (partial front-page-row {:on-press (partial on-press )})
+                ::l/render-row (partial front-page-row {:on-press on-press})
                 ::l/on-end-reached #(dispatch [:load-front-page-stories])}])

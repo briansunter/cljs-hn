@@ -37,9 +37,7 @@
              :story-detail {:screen (r/reactify-component sd/detail-view)
                             :navigationOptions (fn [_] (clj->js {:title (:title @(subscribe [:detail-story]))
                                                                  :headerTitleStyle {:fontSize 12 :fontWeight :bold
-                                                                                    :numberOfLines 2}
-                                                                 }))}})
-
+                                                                                    :numberOfLines 2}}))}})
 
 (def stack-navigator (rn/stack-navigator (clj->js routes)))
 
