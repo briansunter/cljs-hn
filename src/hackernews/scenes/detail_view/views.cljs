@@ -1,8 +1,8 @@
-(ns hackernews.ui.scenes.detail-view.core
+(ns hackernews.scenes.detail-view.views
   (:require [reagent.core :as r]
-            [hackernews.ui.components.react-native.core :as rn]
-            [hackernews.ui.components.story-row :as sr]
-            [hackernews.ui.components.list :as l]
+            [hackernews.components.react-native.core :as rn]
+            [hackernews.components.story-row :as sr]
+            [hackernews.components.list :as l]
             [re-frame.core :refer [subscribe dispatch]]))
 
 (defn- on-header-press
@@ -25,5 +25,5 @@
   (let [detail-story (subscribe [:detail-story])
         comments (subscribe [:current-story-flat-comments])]
     [rn/view {:style {:margin-top 10}}
-     [l/list-view {::l/items @comments
+     [l/list-view {::l/items (or @comments [])
                    ::l/render-row  comment-row}]]))

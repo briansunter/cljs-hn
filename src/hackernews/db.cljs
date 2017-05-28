@@ -7,15 +7,15 @@
 (s/def ::id pos-int?)
 (s/def ::title string?)
 (s/def ::points (s/nilable int?))
-(s/def ::user string?)
+(s/def ::author string?)
 (s/def ::time pos-int?)
 (s/def ::time-ago string?)
-(s/def ::comments-count string?)
+(s/def ::created-at string?)
+(s/def ::num-comments string?)
 (s/def ::type string?)
 (s/def ::url (s/nilable string?))
-(s/def ::domain string?)
 (s/def ::content string?)
-(s/def ::comment (s/keys :req-un [::content]))
+(s/def ::comment (s/keys :req-un [::id ::content ::story-id]))
 (s/def ::comments (s/coll-of ::comment))
 (s/def ::story (s/keys :req-un [::id ::title ::points] :opt-un [::read? ::comments]))
 (s/def ::distinct-ids #(distinct? (map :id %)))
@@ -39,4 +39,4 @@
              :navigation {:router-state {:routes [{:route-name :front-page :key "front-page"}]
                                          :index 0}}
              :stories []
-             :front-page {:current-page-num 1}})
+             :front-page {:current-page-num 0}})

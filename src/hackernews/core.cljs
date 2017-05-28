@@ -1,20 +1,18 @@
 (ns hackernews.core
   (:require [reagent.core :as r :refer [atom]]
             [re-frame.core :refer [subscribe dispatch dispatch-sync]]
-            [day8.re-frame.http-fx]
             [hackernews.events]
             [hackernews.subs]
-            [hackernews.navigation :as ios-nav]
-            [hackernews.ui.scenes.front-page.core :as fp]
-            [hackernews.ui.components.react-native.core :as rn]))
-
-(def initial-route
-  {::ios-nav/title "Front Page"
-   ::ios-nav/component fp/front-page})
+            [hackernews.scenes.front-page.subs]
+            [hackernews.scenes.front-page.events]
+            [hackernews.scenes.detail-view.subs]
+            [hackernews.scenes.detail-view.events]
+            [hackernews.navigation :as nav]
+            [hackernews.components.react-native.core :as rn]))
 
 (defn app-root []
   (fn []
-    [ios-nav/navigation-root]))
+    [nav/navigation-root]))
 
 (defn init []
   (dispatch-sync [:initialize-db])

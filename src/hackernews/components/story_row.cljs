@@ -1,8 +1,8 @@
-(ns hackernews.ui.components.story-row
+(ns hackernews.components.story-row
   (:require [cljs.spec :as s]
             [hackernews.db :as db]
             [reagent.core :as r]
-            [hackernews.ui.components.react-native.core :as rn]))
+            [hackernews.components.react-native.core :as rn]))
 
 (defn- points-view
   [points]
@@ -21,12 +21,12 @@
   [rn/view [rn/text {:style {:font-size 12 :color "gray" :margin 2}} s]])
 
 (defn- detail-view
-  [{:keys [user time_ago comments_count]}]
+  [{:keys [user time_ago num-comments]}]
   [rn/view {:style {:flex-direction "row"}}
    [subtitle-view (str "by " user)]
    [subtitle-view time_ago]
    [subtitle-view "|"]
-   [subtitle-view (str comments_count " comments")]])
+   [subtitle-view (str num-comments " comments")]])
 
 (s/def ::number-of-lines pos-int?)
 (s/def ::story-row-props (s/keys :req-un [::db/story] :opt-un [::number-of-lines]))
