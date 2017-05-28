@@ -4,13 +4,14 @@
 ;; spec of app-db
 (s/def ::greeting string?)
 
-(s/def ::id pos-int?)
+(s/def ::id string?)
 (s/def ::title string?)
 (s/def ::points (s/nilable int?))
-(s/def ::user string?)
+(s/def ::author string?)
 (s/def ::time pos-int?)
 (s/def ::time-ago string?)
-(s/def ::comments-count string?)
+(s/def ::created-at string?)
+(s/def ::num-comments string?)
 (s/def ::type string?)
 (s/def ::url (s/nilable string?))
 (s/def ::domain string?)
@@ -39,4 +40,4 @@
              :navigation {:router-state {:routes [{:route-name :front-page :key "front-page"}]
                                          :index 0}}
              :stories []
-             :front-page {:current-page-num 1}})
+             :front-page {:current-page-num 0}})

@@ -22,7 +22,7 @@
 (reg-sub
  :story-flat-comments
  (fn [db [_ story-id]]
-   (collect-comments (story-by-id story-id (:stories db)))))
+   (:comments db)))
 
 (defn current-route
   [db]
@@ -44,7 +44,7 @@
 (reg-sub
  :current-story-flat-comments
  (fn [db _]
-   (collect-comments (detail-story db))))
+   (:comments db)))
 
 (reg-sub
  :nav-state

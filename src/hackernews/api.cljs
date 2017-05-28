@@ -18,9 +18,13 @@
 
 (defn- fetch
   [{:keys [url params method body on-success on-failure] :as request}]
+  (.log js/console "fetching" (clj->js request))
   (-> (str url "?" (map->query params))
       (js/fetch (clj->js (select-keys request [:method :body])))
       (.then #(.json %))
-      (.then #(js->clj % :keywordize-keys true))
-      (.then #(on-success %))
+      (.then #(on-success (js->clj % :keywordize-keys true)))
       (.catch #(on-failure %))))
+
+(def result (atom nil))
+
+(fetch {:url "https://hn.algolia.com/api/v1/search" :params {:tags "front_page" :page 0} :method "GET":on-success #(reset! result %)})

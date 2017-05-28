@@ -25,5 +25,5 @@
   (let [detail-story (subscribe [:detail-story])
         comments (subscribe [:current-story-flat-comments])]
     [rn/view {:style {:margin-top 10}}
-     [l/list-view {::l/items @comments
+     [l/list-view {::l/items (or @comments [])
                    ::l/render-row  comment-row}]]))

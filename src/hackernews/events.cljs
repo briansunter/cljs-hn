@@ -1,9 +1,11 @@
 (ns hackernews.events
   (:require
-   [re-frame.core :refer [reg-event-db after reg-event-fx reg-cofx reg-fx dispatch]]
+   [re-frame.core :refer [reg-event-db after reg-event-fx reg-cofx reg-fx dispatch subscribe]]
    [ajax.core :as ajax]
    [clojure.spec :as s]
    [hackernews.navigation :as ios-nav]
+   [camel-snake-kebab.core :as kebab]
+   [camel-snake-kebab.extras :as kebab-extras]
    [hackernews.api :as api]
    [hackernews.ui.components.react-native.core :as rn]
    [hackernews.db :as db :refer [app-db]]))
@@ -50,11 +52,16 @@
          updated-stories (map #(if (= story-id (:id %)) (assoc % :read? true) %) stories)]
      (assoc db :stories updated-stories))))
 
+(defn format-algolia-stories
+  [response]
+  (->> (map #(kebab-extras/transform-keys kebab/->kebab-case %) response)
+       (map #(clojure.set/rename-keys % {:object-id :id :author :user :comment-text :content}))))
+
 (reg-event-fx
  :loaded-front-page-stories
  validate-spec
  (fn [cofx [_ stories]]
-   {:db (-> (update (:db cofx) :stories #(concat % stories))
+   {:db (-> (update (:db cofx) :stories #(concat % (format-algolia-stories (:hits stories))))
             (update-in [:front-page :current-page-num] inc))}))
 
 (reg-event-fx
@@ -67,14 +74,23 @@
 (reg-event-fx
  :loaded-story-comments
  validate-spec
- (fn [{:keys [db]} [_ {:keys [id comments]}]]
+ (fn [{:keys [db]} [_ id comments]]
+   (.log js/console "loaded comments" id (clj->js (format-algolia-stories (:hits comments))))
    (let [stories (:stories db)
-         updated-stories (map #(if (= id (:id %)) (assoc % :comments comments) %) stories)]
-     {:db (assoc db :stories updated-stories)})))
+         updated-stories (map #(if (= id (:id %)) (assoc % :comments (format-algolia-stories (:hits comments))) %) stories)]
+     {:db (assoc db :comments (format-algolia-stories (:hits comments)))})))
+
+(reg-event-fx
+ :failed-loading-story-comments
+ validate-spec
+ (fn [cofx [_ error-response]]
+   (throw (ex-info (str error-response "Failed loading stories") {:response error-response}))
+   {:db (:db cofx)}))
 
 ;; -- Effects --
 
 (def hn-api "https://node-hnapi.herokuapp.com")
+(def algolia-api "https://hn.algolia.com/api/v1/search")
 
 (reg-fx
  :fetch-http
@@ -90,8 +106,8 @@
  :load-front-page-stories
  (fn [{:keys [db]} [_]]
    {:fetch-http {:method          :get
-                 :url             (str hn-api "/news")
-                 :params  {:page  (get-in db [:front-page :current-page-num])}
+                 :url             algolia-api
+                 :params          {:tags "front_page" :page (get-in db [:front-page :current-page-num])}
                  :timeout         8000
                  :response-format (ajax/json-response-format {:keywords? true})
                  :on-success      [:loaded-front-page-stories]
@@ -100,12 +116,13 @@
 (reg-event-fx
  :load-story-comments
  (fn [{:keys [db]} [_ story-id]]
-   {:fetch-http{:method          :get
-                :url             (str hn-api "/item/" story-id)
-                :timeout         8000
-                :response-format (ajax/json-response-format {:keywords? true})
-                :on-success      [:loaded-story-comments]
-                :on-failure      [:failed-loading-story-comments]}}))
+   {:fetch-http {:method          :get
+                 :url             algolia-api
+                 :params          {:tags (str "comment,story_" story-id)}
+                 :timeout         8000
+                 :response-format (ajax/json-response-format {:keywords? true})
+                 :on-success      [:loaded-story-comments story-id]
+                 :on-failure      [:failed-loading-story-comments]}}))
 
 (reg-event-fx
  :open-story-external
