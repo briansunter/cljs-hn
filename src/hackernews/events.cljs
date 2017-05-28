@@ -7,6 +7,7 @@
    [camel-snake-kebab.core :as kebab]
    [camel-snake-kebab.extras :as kebab-extras]
    [hackernews.api :as api]
+   [hackernews.utils :refer [find-by-id dec-to-zero]]
    [hackernews.ui.components.react-native.core :as rn]
    [hackernews.db :as db :refer [app-db]]))
 
@@ -28,7 +29,7 @@
     []))
 
 (def logging
-  (after (fn [db [e]] (.log js/console "EVENT" e))))
+  (after (fn [db [e]] (.log js/console "EVENT" (clj->js e)))))
 
 (def interceptors [validate-spec logging])
 
@@ -40,10 +41,6 @@
  (fn [_ _]
    app-db))
 
-(defn story-with-id
-  [story-id stories]
-  (first (filter #(= story-id (:id %)) stories)))
-
 (reg-event-db
  :read-story
  validate-spec
@@ -52,44 +49,42 @@
          updated-stories (map #(if (= story-id (:id %)) (assoc % :read? true) %) stories)]
      (assoc db :stories updated-stories))))
 
-(defn format-algolia-stories
+(defn format-algolia-response
   [response]
   (->> (map #(kebab-extras/transform-keys kebab/->kebab-case %) response)
-       (map #(clojure.set/rename-keys % {:object-id :id :author :user :comment-text :content}))))
+       (map #(clojure.set/rename-keys % {:object-id :id :author :user :comment-text :content}))
+       (map #(update % :id js/parseInt))))
 
 (reg-event-fx
  :loaded-front-page-stories
- validate-spec
+ interceptors
  (fn [cofx [_ stories]]
-   {:db (-> (update (:db cofx) :stories #(concat % (format-algolia-stories (:hits stories))))
+   {:db (-> (update (:db cofx) :stories #(concat % (format-algolia-response (:hits stories))))
             (update-in [:front-page :current-page-num] inc))}))
 
 (reg-event-fx
  :failed-loading-front-page-stories
- validate-spec
+ interceptors
  (fn [cofx [_ error-response]]
    (throw (ex-info (str error-response "Failed loading stories") {:response error-response}))
    {:db (:db cofx)}))
 
 (reg-event-fx
  :loaded-story-comments
- validate-spec
+ interceptors
  (fn [{:keys [db]} [_ id comments]]
-   (.log js/console "loaded comments" id (clj->js (format-algolia-stories (:hits comments))))
-   (let [stories (:stories db)
-         updated-stories (map #(if (= id (:id %)) (assoc % :comments (format-algolia-stories (:hits comments))) %) stories)]
-     {:db (assoc db :comments (format-algolia-stories (:hits comments)))})))
+   #_(.log js/console "loaded comments" id (clj->js (format-algolia-response (:hits comments))))
+   {:db (update db :comments #(concat (format-algolia-response (:hits comments))))}))
 
 (reg-event-fx
  :failed-loading-story-comments
- validate-spec
+ interceptors
  (fn [cofx [_ error-response]]
    (throw (ex-info (str error-response "Failed loading stories") {:response error-response}))
    {:db (:db cofx)}))
 
 ;; -- Effects --
 
-(def hn-api "https://node-hnapi.herokuapp.com")
 (def algolia-api "https://hn.algolia.com/api/v1/search")
 
 (reg-fx
@@ -127,7 +122,7 @@
 (reg-event-fx
  :open-story-external
  (fn [cofx [_ story-id]]
-   (let [story (story-with-id story-id (get-in cofx [:db :stories]))]
+   (let [story (find-by-id story-id (get-in cofx [:db :stories]))]
      {:dispatch [:read-story story-id]
       :open-url-external (:url story)})))
 
@@ -149,13 +144,6 @@
  (fn [cofx [_ story-id]]
    {:db (push-nav-stack (:db cofx) :story-detail {:story-id story-id})
     :dispatch [:load-story-comments story-id]}))
-
-(defn dec-to-zero
-  "Same as dec if not zero"
-  [arg]
-  (if (< 0 arg)
-    (dec arg)
-    arg))
 
 (reg-event-db
  :pop-stack-nav

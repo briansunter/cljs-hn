@@ -4,7 +4,7 @@
 ;; spec of app-db
 (s/def ::greeting string?)
 
-(s/def ::id string?)
+(s/def ::id pos-int?)
 (s/def ::title string?)
 (s/def ::points (s/nilable int?))
 (s/def ::author string?)
@@ -16,7 +16,7 @@
 (s/def ::url (s/nilable string?))
 (s/def ::domain string?)
 (s/def ::content string?)
-(s/def ::comment (s/keys :req-un [::content]))
+(s/def ::comment (s/keys :req-un [::id ::content ::story-id]))
 (s/def ::comments (s/coll-of ::comment))
 (s/def ::story (s/keys :req-un [::id ::title ::points] :opt-un [::read? ::comments]))
 (s/def ::distinct-ids #(distinct? (map :id %)))

@@ -1,19 +1,16 @@
 (ns hackernews.subs
-  (:require [re-frame.core :refer [reg-sub]]))
+  (:require  [re-frame.core :refer [reg-sub]]
+             [hackernews.utils :refer [find-by-id find-first]]))
 
 (reg-sub
  :get-front-page-stories
  (fn [db _]
    (:stories db)))
 
-(defn- story-by-id
-  [id stories]
-  (first (filter #(= id (:id %)) stories)))
-
 (reg-sub
  :get-story
  (fn [db [_ story-id]]
-   (story-by-id story-id (:stories db))))
+   (find-by-id story-id (:stories db))))
 
 (defn- collect-comments
   [comment]
@@ -34,7 +31,7 @@
   (-> (current-route db)
       :params
       :story-id
-      (story-by-id (:stories db))))
+      (find-by-id (:stories db))))
 
 (reg-sub
  :detail-story
@@ -44,7 +41,8 @@
 (reg-sub
  :current-story-flat-comments
  (fn [db _]
-   (:comments db)))
+   (let [current-story-id (:id (detail-story db))]
+     (filter #(= current-story-id (:story-id %)) (:comments db)))))
 
 (reg-sub
  :nav-state

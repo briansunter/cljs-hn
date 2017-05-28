@@ -25,6 +25,6 @@
       (.then #(on-success (js->clj % :keywordize-keys true)))
       (.catch #(on-failure %))))
 
-(def result (atom nil))
+#_(def result (atom nil))
 
-(fetch {:url "https://hn.algolia.com/api/v1/search" :params {:tags "front_page" :page 0} :method "GET":on-success #(reset! result %)})
+#_(fetch {:url "https://hn.algolia.com/api/v1/search" :params {:tags "front_page" :page 0} :method "GET":on-success #(reset! result %)})
