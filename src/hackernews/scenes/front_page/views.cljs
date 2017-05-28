@@ -1,10 +1,9 @@
-(ns hackernews.ui.scenes.front-page.core
+(ns hackernews.scenes.front-page.views
   (:require [reagent.core :as r]
             [re-frame.core :refer [subscribe dispatch]]
-            [hackernews.ui.components.story-row :as sr]
-            [hackernews.ui.components.list :as l]
-            [hackernews.ui.scenes.detail-view.core :as d]
-            [hackernews.ui.components.react-native.core :as rn]))
+            [hackernews.components.story-row :as sr]
+            [hackernews.components.list :as l]
+            [hackernews.components.react-native.core :as rn]))
 
 (defn- on-press
   [story-id]
@@ -17,7 +16,7 @@
    (sr/story-row {:story story})])
 
 (defn front-page
-  [{:keys [navigator]}]
+  [{:keys [navigation]}]
   [l/list-view {::l/items @(subscribe [:get-front-page-stories])
                 ::l/render-row (partial front-page-row {:on-press on-press})
                 ::l/on-end-reached #(dispatch [:load-front-page-stories])}])

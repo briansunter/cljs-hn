@@ -14,7 +14,6 @@
 (s/def ::num-comments string?)
 (s/def ::type string?)
 (s/def ::url (s/nilable string?))
-(s/def ::domain string?)
 (s/def ::content string?)
 (s/def ::comment (s/keys :req-un [::id ::content ::story-id]))
 (s/def ::comments (s/coll-of ::comment))

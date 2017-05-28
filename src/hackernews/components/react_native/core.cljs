@@ -1,4 +1,4 @@
-(ns hackernews.ui.components.react-native.core
+(ns hackernews.components.react-native.core
   (:require [reagent.core :as r]))
 
 (def ReactNative (js/require "react-native"))

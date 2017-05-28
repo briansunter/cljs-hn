@@ -1,8 +1,8 @@
-(ns hackernews.ui.components.story-row
+(ns hackernews.components.story-row
   (:require [cljs.spec :as s]
             [hackernews.db :as db]
             [reagent.core :as r]
-            [hackernews.ui.components.react-native.core :as rn]))
+            [hackernews.components.react-native.core :as rn]))
 
 (defn- points-view
   [points]
