@@ -62,9 +62,6 @@ target/
 #
 figwheel_server.log
 .nrepl-port
-.nrepl-port
 gradle.properties
-.re-natal
 .nrepl-port
 .lein-repl-history
-nrepl-port

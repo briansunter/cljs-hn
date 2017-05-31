@@ -1,6 +1,5 @@
 (ns hackernews.scenes.detail-view.subs
-  (:require [re-frame.core :refer [reg-sub]]
-            [hackernews.utils :refer [find-by-id]]))
+  (:require [re-frame.core :refer [reg-sub]]))
 
 (defn current-route
   [db]
@@ -9,10 +8,8 @@
 
 (defn detail-story
   [db]
-  (-> (current-route db)
-      :params
-      :story-id
-      (find-by-id (:stories db))))
+  (let [current-story-id (:story-id (:params (current-route db)))]
+    (get-in db [:stories current-story-id])))
 
 (reg-sub
  :detail-story
@@ -23,4 +20,4 @@
  :current-story-flat-comments
  (fn [db _]
    (let [current-story-id (:id (detail-story db))]
-     (filter #(= current-story-id (:story-id %)) (:comments db)))))
+     (filter #(= current-story-id (:story-id %)) (vals (:comments db))))))

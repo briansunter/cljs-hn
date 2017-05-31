@@ -25,10 +25,9 @@
 
 (def stack-navigator (rn/stack-navigator (clj->js routes)))
 
-
 (defn format-nav-state
   [ns]
-  (clj->js (update ns :routes (fn [rs] (map #(update-keys % ->camelCase) rs)))))
+  (clj->js (update ns :routes (fn [rs] (map #(update-keys ->camelCase %) rs)))))
 
 (defn dispatch-nav
   [nav-val]
