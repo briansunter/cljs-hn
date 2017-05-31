@@ -16,10 +16,9 @@
 (s/def ::url (s/nilable string?))
 (s/def ::content string?)
 (s/def ::comment (s/keys :req-un [::id ::content ::story-id]))
-(s/def ::comments (s/coll-of ::comment))
+(s/def ::comments (s/map-of ::id ::comment))
 (s/def ::story (s/keys :req-un [::id ::title ::points] :opt-un [::read? ::comments]))
-(s/def ::distinct-ids #(distinct? (map :id %)))
-(s/def ::stories (s/and (s/coll-of ::story) ::distinct-ids))
+(s/def ::stories (s/map-of ::id ::story))
 
 (s/def ::current-page-num int?)
 (s/def ::front-page (s/keys :req-un [::current-page-num]))
@@ -32,11 +31,12 @@
 
 (s/def ::router-state (s/keys :req-un [::routes ::index]))
 (s/def ::navigation (s/keys :req-un [::router-state]))
-(s/def ::app-db (s/keys :req-un [::stories ::front-page ::navigation]))
+(s/def ::app-db (s/keys :req-un [::stories ::comments ::front-page ::navigation]))
 
 ;; initial state of app-db
 (def app-db {:greeting "Hello Clojure in iOS and Android!"
              :navigation {:router-state {:routes [{:route-name :front-page :key "front-page"}]
                                          :index 0}}
-             :stories []
+             :stories {}
+             :comments {}
              :front-page {:current-page-num 0}})

@@ -1,5 +1,6 @@
 (ns hackernews.scenes.front-page.events
-  (:require [re-frame.core :refer [reg-event-db reg-event-fx]]
+  (:require [re-frame.core :refer [reg-event-db reg-event-fx reg-fx dispatch dispatch-sync]]
+            [hackernews.utils :refer [index-by-id]]
             [hackernews.interceptors :as i]
             [camel-snake-kebab.core :as kebab]
             [camel-snake-kebab.extras :as kebab-extras]))
@@ -10,13 +11,12 @@
  :read-story
  i/interceptors
  (fn [db [_ story-id]]
-   (let [stories (:stories db)
-         updated-stories (map #(if (= story-id (:id %)) (assoc % :read? true) %) stories)]
-     (assoc db :stories updated-stories))))
+   (assoc-in db [:stories story-id :read?] true)))
 
 (defn format-algolia-response
   [response]
-  (->> (map #(kebab-extras/transform-keys kebab/->kebab-case %) response)
+  (->> (:hits response)
+       (map #(kebab-extras/transform-keys kebab/->kebab-case %))
        (map #(clojure.set/rename-keys % {:object-id :id :author :user :comment-text :content}))
        (map #(update % :id js/parseInt))))
 
@@ -28,16 +28,26 @@
     :fetch-http {:method          :get
                  :url             algolia-api
                  :params          {:tags "front_page" :page (get-in db [:front-page :current-page-num])}
+                 :response-formatter format-algolia-response
                  :timeout         8000
                  :on-success      [:loaded-front-page-stories]
                  :on-failure      [:failed-loading-front-page-stories]}}))
+
+(reg-fx
+ :load-comments-for-stories
+ (fn [story-ids]
+   (.log js/console "EVENT " "comments for story")
+   (doseq [id story-ids]
+     (dispatch [:load-story-comments id]))))
 
 (reg-event-fx
  :loaded-front-page-stories
  i/interceptors
  (fn [cofx [_ stories]]
-   {:db (-> (update (:db cofx) :stories #(concat % (format-algolia-response (:hits stories))))
-            (update-in [:front-page :current-page-num] inc))}))
+   {:db (-> (update (:db cofx) :stories #(merge % (index-by-id stories)))
+            (update-in [:front-page :current-page-num] inc))
+    ;; :dispatch [:load-story-comments (:id (first stories))]
+    :load-comments-for-stories (map :id stories)}))
 
 (reg-event-fx
  :failed-loading-front-page-stories
@@ -55,6 +65,7 @@
                  :url             algolia-api
                  :params          {:tags (str "comment,story_" story-id)}
                  :timeout         8000
+                 :response-formatter format-algolia-response
                  :on-success      [:loaded-story-comments story-id]
                  :on-failure      [:failed-loading-story-comments]}}))
 
@@ -62,8 +73,7 @@
  :loaded-story-comments
  i/interceptors
  (fn [{:keys [db]} [_ id comments]]
-   #_(.log js/console "loaded comments" id (clj->js (format-algolia-response (:hits comments))))
-   {:db (update db :comments #(concat (format-algolia-response (:hits comments))))}))
+   {:db (update db :comments #(merge % (index-by-id comments)))}))
 
 (reg-event-fx
  :failed-loading-story-comments
