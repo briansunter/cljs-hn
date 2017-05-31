@@ -2,7 +2,7 @@
   (:require
    [re-frame.core :refer [reg-event-db reg-event-fx reg-fx dispatch]]
    [hackernews.api :as api]
-   [hackernews.utils :refer [find-by-id dec-to-zero]]
+   [hackernews.utils :refer [dec-to-zero]]
    [hackernews.navigation :as nav]
    [hackernews.interceptors :as i]
    [hackernews.db :as db :refer [app-db]]))

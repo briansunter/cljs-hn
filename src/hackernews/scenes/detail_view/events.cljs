@@ -1,6 +1,5 @@
 (ns hackernews.scenes.detail-view.events
   (:require [re-frame.core :refer [reg-event-fx reg-fx]]
-            [hackernews.utils :refer [find-by-id]]
             [hackernews.interceptors :as i]
             [hackernews.components.react-native.core :as rn]))
 
@@ -8,9 +7,9 @@
  :open-story-external
  i/interceptors
  (fn [cofx [_ story-id]]
-   (let [story (find-by-id story-id (get-in cofx [:db :stories]))]
+   (let [story (get-in cofx [:db :stories story-id])]
      {:db (:db cofx)
-     :dispatch [:read-story story-id]
+      :dispatch [:read-story story-id]
       :open-url-external (:url story)})))
 
 (defn- open-url! [url]

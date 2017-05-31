@@ -1,6 +1,5 @@
 (ns hackernews.subs
-  (:require  [re-frame.core :refer [reg-sub]]
-             [hackernews.utils :refer [find-by-id find-first]]))
+  (:require  [re-frame.core :refer [reg-sub]]))
 
 (reg-sub
  :nav-state

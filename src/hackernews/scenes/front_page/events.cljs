@@ -1,5 +1,6 @@
 (ns hackernews.scenes.front-page.events
   (:require [re-frame.core :refer [reg-event-db reg-event-fx reg-fx dispatch dispatch-sync]]
+            [hackernews.utils :refer [index-by-id]]
             [hackernews.interceptors :as i]
             [camel-snake-kebab.core :as kebab]
             [camel-snake-kebab.extras :as kebab-extras]))
@@ -10,9 +11,7 @@
  :read-story
  i/interceptors
  (fn [db [_ story-id]]
-   (let [stories (:stories db)
-         updated-stories (map #(if (= story-id (:id %)) (assoc % :read? true) %) stories)]
-     (assoc db :stories updated-stories))))
+   (assoc-in db [:stories story-id :read?] true)))
 
 (defn format-algolia-response
   [response]
@@ -45,7 +44,7 @@
  :loaded-front-page-stories
  i/interceptors
  (fn [cofx [_ stories]]
-   {:db (-> (update (:db cofx) :stories #(concat % stories))
+   {:db (-> (update (:db cofx) :stories #(merge % (index-by-id stories)))
             (update-in [:front-page :current-page-num] inc))
     ;; :dispatch [:load-story-comments (:id (first stories))]
     :load-comments-for-stories (map :id stories)}))
@@ -74,7 +73,7 @@
  :loaded-story-comments
  i/interceptors
  (fn [{:keys [db]} [_ id comments]]
-   {:db (update db :comments #(concat % comments))}))
+   {:db (update db :comments #(merge % (index-by-id comments)))}))
 
 (reg-event-fx
  :failed-loading-story-comments
