@@ -6,21 +6,25 @@
             [camel-snake-kebab.core :refer [->camelCase ->kebab-case]]
             [re-frame.core :refer [subscribe dispatch]]
             [hackernews.scenes.front-page.views :as fp]
+            [hackernews.utils :refer [update-keys]]
             [hackernews.components.story-row :as sr]
             [hackernews.scenes.detail-view.views :as sd]))
+
+
+(defn open-story-button
+  [story-id]
+  [rn/button {:title "Open" :on-press #(dispatch [:open-story-external story-id])}])
 
 (def routes {:front-page {:screen (r/reactify-component fp/front-page)
                           :navigationOptions {:title "Front Page"}}
              :story-detail {:screen (r/reactify-component sd/detail-view)
-                            :navigationOptions (fn [_] (clj->js {:title (:title @(subscribe [:detail-story]))
-                                                                 :headerTitleStyle {:fontSize 12 :fontWeight :bold
-                                                                                    :numberOfLines 2}}))}})
+                            :navigationOptions (fn [_] (let [story (subscribe [:detail-story])]
+                                                         (clj->js {:title (:title @story)
+                                                                   :headerRight (r/as-element (open-story-button (:id @story)))
+                                                                   :headerTitleStyle {:fontSize 12 :fontWeight :bold}})))}})
 
 (def stack-navigator (rn/stack-navigator (clj->js routes)))
 
-(defn update-keys
-  [m f]
-  (into {} (map (fn [[k v]] {(f k) v}) m)))
 
 (defn format-nav-state
   [ns]

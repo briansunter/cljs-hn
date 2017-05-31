@@ -67,3 +67,4 @@ gradle.properties
 .re-natal
 .nrepl-port
 .lein-repl-history
+nrepl-port

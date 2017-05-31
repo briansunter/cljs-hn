@@ -14,3 +14,7 @@
   (if (< 0 arg)
     (dec arg)
     arg))
+
+(defn update-keys
+  [m f]
+  (into {} (map (fn [[k v]] (hash-map (f k) v)) m)))

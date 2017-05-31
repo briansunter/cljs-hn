@@ -9,7 +9,8 @@
  i/interceptors
  (fn [cofx [_ story-id]]
    (let [story (find-by-id story-id (get-in cofx [:db :stories]))]
-     {:dispatch [:read-story story-id]
+     {:db (:db cofx)
+     :dispatch [:read-story story-id]
       :open-url-external (:url story)})))
 
 (defn- open-url! [url]
