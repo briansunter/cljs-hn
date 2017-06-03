@@ -11,16 +11,16 @@
             [hackernews.scenes.detail-view.views :as sd]))
 
 
-(defn open-story-button
+(defn share-story-button
   [story-id]
-  [rn/button {:title "Open" :on-press #(dispatch [:open-story-external story-id])}])
+  [rn/button {:title "Share" :on-press #(dispatch [:share-story story-id])}])
 
 (def routes {:front-page {:screen (r/reactify-component fp/front-page)
                           :navigationOptions {:title "Front Page"}}
              :story-detail {:screen (r/reactify-component sd/detail-view)
                             :navigationOptions (fn [_] (let [story (subscribe [:detail-story])]
                                                          (clj->js {:title (:title @story)
-                                                                   :headerRight (r/as-element (open-story-button (:id @story)))
+                                                                   :headerRight (r/as-element (share-story-button (:id @story)))
                                                                    :headerTitleStyle {:fontSize 12 :fontWeight :bold}})))}})
 
 (def stack-navigator (rn/stack-navigator (clj->js routes)))

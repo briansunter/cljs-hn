@@ -8,6 +8,7 @@
 (def touchable-opacity (r/adapt-react-class (.-TouchableOpacity ReactNative)))
 (def text (r/adapt-react-class (.-Text ReactNative)))
 (def button (r/adapt-react-class (.-Button ReactNative)))
+(def share (.-Share ReactNative))
 (def view (r/adapt-react-class (.-View ReactNative)))
 (def image (r/adapt-react-class (.-Image ReactNative)))
 (def list-view (r/adapt-react-class (.-ListView ReactNative)))

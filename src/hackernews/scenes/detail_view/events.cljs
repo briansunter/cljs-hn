@@ -19,3 +19,16 @@
  :open-url-external
  (fn [url]
    (open-url! url)))
+
+(reg-event-fx
+ :share-story
+ i/interceptors
+ (fn [cofx [_ story-id]]
+   (let [story (get-in cofx [:db :stories story-id])]
+     {:db (:db cofx)
+      :share-url {:url (:url story) :message (:title story)}})))
+
+(reg-fx
+ :share-url
+ (fn [{:keys [url message]}]
+   (.share rn/share (clj->js {:url url :message message}))))
