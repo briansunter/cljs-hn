@@ -17,7 +17,9 @@
   [response]
   (->> (:hits response)
        (map #(kebab-extras/transform-keys kebab/->kebab-case %))
-       (map #(clojure.set/rename-keys % {:object-id :id :author :user :comment-text :content}))
+       (map #(clojure.set/rename-keys % {:object-id :id
+                                         :author :user
+                                         :comment-text :content}))
        (map #(update % :id js/parseInt))))
 
 (reg-event-fx
@@ -59,21 +61,24 @@
 (reg-event-fx
  :load-story-comments
  i/interceptors
- (fn [{:keys [db]} [_ story-id]]
+ (fn [{:keys [db]} [_ story-id page]]
    {:db db
     :fetch-http {:method          :get
                  :url             algolia-api
-                 :params          {:tags (str "comment,story_" story-id)}
+                 :params          {:tags (str "comment,story_" story-id) :page (or page 0)}
                  :timeout         8000
                  :response-formatter format-algolia-response
-                 :on-success      [:loaded-story-comments story-id]
+                 :on-success      [:loaded-story-comments story-id (or page 0)]
                  :on-failure      [:failed-loading-story-comments]}}))
 
 (reg-event-fx
  :loaded-story-comments
  i/interceptors
- (fn [{:keys [db]} [_ id comments]]
-   {:db (update db :comments #(merge % (index-by-id comments)))}))
+ (fn [{:keys [db]} [_ id page comments]]
+   (merge
+    {:db (update db :comments #(merge % (index-by-id comments)))}
+    (when-not (empty? comments)
+      {:dispatch [:load-story-comments id (inc page)]}))))
 
 (reg-event-fx
  :failed-loading-story-comments
