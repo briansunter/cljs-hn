@@ -15,15 +15,15 @@
    (sr/story-row {:story story})])
 
 (defn comment-row
-  [{:keys [user time_ago content]}]
+  [{:keys [user time-ago content]}]
   [rn/view {:style {:padding 15}}
-   [rn/text {:style {:color "#f26522" :margin-bottom 10}} (str user " " time_ago)]
+   [rn/text {:style {:color "#f26522" :margin-bottom 10}} (str user " " time-ago)]
    [rn/html-view {:value content :stylesheet {:p {:font-size 18}}}]])
 
 (defn detail-view
   []
   (let [detail-story (subscribe [:detail-story])
         comments (subscribe [:current-story-flat-comments])]
-    [rn/view {:style {:margin-top 10}}
      [l/list-view {::l/items (or @comments [])
-                   ::l/render-row  comment-row}]]))
+                   ::l/header (story-header @detail-story)
+                   ::l/render-row  comment-row}]))
