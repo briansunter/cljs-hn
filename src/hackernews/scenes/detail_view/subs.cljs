@@ -21,3 +21,14 @@
  (fn [db _]
    (let [current-story-id (:id (detail-story db))]
      (filter #(= current-story-id (:story-id %)) (vals (:comments db))))))
+
+(reg-sub
+ :current-story-parent-comments
+ (fn [db _]
+   (let [current-story-id (:id (detail-story db))]
+     (filter #(= current-story-id (:story-id %) (:parent-id %)) (vals (:comments db))))))
+
+(reg-sub
+ :comments-with-parent-id
+ (fn [db [_ id]]
+   (filter #(= id (:parent-id %)) (vals (:comments db)))))
