@@ -12,6 +12,7 @@
 (def view (r/adapt-react-class (.-View ReactNative)))
 (def image (r/adapt-react-class (.-Image ReactNative)))
 (def list-view (r/adapt-react-class (.-ListView ReactNative)))
+(def flat-list (r/adapt-react-class (.-FlatList ReactNative)))
 (def touchable-highlight (r/adapt-react-class (.-TouchableHighlight ReactNative)))
 (def linking (.-Linking ReactNative))
 (def react-navigation (js/require "react-navigation"))

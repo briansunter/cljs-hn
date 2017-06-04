@@ -1,13 +1,13 @@
 (ns hackernews.scenes.front-page.views
   (:require [reagent.core :as r]
-            [re-frame.core :refer [subscribe dispatch]]
+            [re-frame.core :refer [subscribe dispatch dispatch-sync]]
             [hackernews.components.story-row :as sr]
             [hackernews.components.list :as l]
             [hackernews.components.react-native.core :as rn]))
 
 (defn- on-press
   [story-id]
-  (dispatch [:nav-story-detail story-id]))
+  (dispatch-sync [:nav-story-detail story-id]))
 
 (defn- front-page-row
   [{:keys [on-press]} story]
