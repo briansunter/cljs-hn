@@ -17,23 +17,31 @@
 (defn child-comments
   [{:keys [id user time-ago content]}]
   (let [comments (subscribe [:comments-with-parent-id id])]
-    [rn/view {:style {:padding-left 15
-                      :padding-top 15
-                      :padding-bottom 15} :key id}
+    [rn/view {:style {:flex-direction "row"}}
+     [rn/view
+      {:flex 1
+       :style {:background-color "orange"
+               :margin-top 10}}]
+     [rn/view {:flex 150
+               :style {:padding-left 15
+                       :padding-top 15
+                       :padding-bottom 15} :key id}
       [rn/text {:style {:color "#f26522" :margin-bottom 10}} (str user " " time-ago)]
-      [rn/html-view {:value content :stylesheet {:p {:font-size 18}}}]
-      (for [c @comments]
-        ^{:key (:id c)}
-        [child-comments c])]))
+      [rn/html-view {:value content}]
+      [rn/view (for [c @comments]
+                 ^{:key (:id c)}
+                 [child-comments c])]]]))
 
   (defn comment-row
     [{:keys [id user time-ago content] :as s}]
-    [rn/view {:key id :style {:padding-right 15}} [child-comments s]])
+    (fn []
+      [rn/view {:key id :style {:padding-right 15}} [child-comments s]]))
 
   (defn detail-view
     []
     (let [detail-story (subscribe [:detail-story])
           comments (subscribe [:current-story-nested-comments])]
-      [l/list-view {::l/items (or @comments [])
-                    ::l/header (story-header @detail-story)
-                    ::l/render-row  comment-row}]))
+      [rn/view
+       [l/list-view {::l/items (or @comments [])
+                     ::l/header (story-header @detail-story)
+                     ::l/render-row  comment-row}] ]))
