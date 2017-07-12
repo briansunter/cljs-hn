@@ -20,7 +20,7 @@
   [{:keys [url params method body on-success on-failure response-formatter]
     :or {response-formatter identity}
     :as request}]
-  (.log js/console "fetching" (clj->js request))
+  #_(.log js/console "fetching" (clj->js request))
   (-> (str url "?" (map->query params))
       (js/fetch (clj->js (select-keys request [:method :body])))
       (.then #(.json %))

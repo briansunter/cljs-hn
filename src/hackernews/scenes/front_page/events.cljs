@@ -38,7 +38,7 @@
 (reg-fx
  :load-comments-for-stories
  (fn [story-ids]
-   (.log js/console "EVENT " "comments for story")
+   #_(.log js/console "EVENT " "comments for story")
    (doseq [id story-ids]
      (dispatch [:load-story-comments id]))))
 

@@ -40,7 +40,7 @@
  :nav/js
  i/interceptors
  (fn [{:keys [db]} [_ type route-name params]]
-   (js/console.log "JS NAV" type route-name)
+   #_(js/console.log "JS NAV" type route-name)
    {:dispatch (case type
                 "Navigation/BACK" [:pop-stack-nav]
                 "Navigation/NAVIGATE" [])

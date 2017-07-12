@@ -39,7 +39,7 @@
 (defn navigation-root
   []
   (let [nav-state (subscribe [:nav-state])]
-    (.log js/console (format-nav-state @nav-state))
+    #_(.log js/console (format-nav-state @nav-state))
     [(r/adapt-react-class stack-navigator) {:navigation (rn/add-navigation-helpers
                                                          (clj->js
                                                           {"state" (format-nav-state @nav-state)

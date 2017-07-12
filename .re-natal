@@ -2,7 +2,7 @@
   "name": "hackernews",
   "interface": "reagent6",
   "androidHost": "localhost",
-  "iosHost": "localhost",
+  "iosHost": "192.168.1.69",
   "envRoots": {
     "dev": "env/dev",
     "prod": "env/prod"

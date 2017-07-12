@@ -26,8 +26,8 @@
     [rn/flat-list (merge {:data (clj->js (map #(assoc % :key (:id %)) items))
                     :content-container-style {:padding-bottom 100}
                     :ListHeaderComponent #(r/as-element header)
+                          :initial-num-to-render 1
                     :render-item (fn [js-item]
-                                   (.log js/console "ITEMM" js-item)
                                    (let [item (js->clj js-item :keywordize-keys true)]
                                      (r/as-element
                                       [render-row (:item item)])))
