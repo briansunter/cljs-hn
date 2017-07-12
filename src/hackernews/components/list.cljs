@@ -14,21 +14,26 @@
 (s/def ::items (s/coll-of ::item))
 (s/def ::render-row (s/fspec :args (s/cat :item ::item)))
 (s/def ::on-end-reached (s/fspec :args nil))
-(s/def ::list-view-props (s/keys :req [::items ::render-row] :opt [::on-end-reached]))
+(s/def ::hiccup (s/or :vec vector? :fn fn?))
+(s/def ::header ::hiccup)
+(s/def ::list-view-props (s/keys :req [::items ::render-row] :opt [::on-end-reached ::header]))
 
 (s/fdef list-view :args (s/cat :props ::list-view-props))
 
 (defn list-view
-  [{:keys [::items ::render-row ::on-end-reached]}]
+  [{:keys [::items ::render-row ::header ::on-end-reached]}]
   (let [ds (rn/ReactNative.ListView.DataSource. #js{:rowHasChanged (fn [a b] false)})]
-    [rn/list-view {:dataSource (.cloneWithRows ds (clj->js items))
-                   :content-container-style {:padding-bottom 100}
-                   :render-row (fn [js-item]
-                                 (let [item (js->clj js-item :keywordize-keys true)]
-                                   (r/as-element
-                                    (render-row item))))
-                   :renderSeparator (fn [section-id row-id]
-                                      (r/as-element
-                                       [row-separator section-id row-id]))
-                   :on-end-reached on-end-reached
-                   :onEndReachedNumberThreshold 500}]))
+    [rn/flat-list (merge {:data (clj->js (map #(assoc % :key (:id %)) items))
+                    :content-container-style {:padding-bottom 100}
+                    :ListHeaderComponent #(r/as-element header)
+                          :initial-num-to-render 1
+                    :render-item (fn [js-item]
+                                   (let [item (js->clj js-item :keywordize-keys true)]
+                                     (r/as-element
+                                      [render-row (:item item)])))
+                    :render-separator (fn [section-id row-id]
+                                        (r/as-element
+                                         [row-separator section-id row-id]))
+                          :onEndReachedNumberThreshold 500}
+                         (when on-end-reached
+                           {:on-end-reached on-end-reached}))]))

@@ -10,18 +10,10 @@
             [hackernews.components.story-row :as sr]
             [hackernews.scenes.detail-view.views :as sd]))
 
-
-(defn open-story-button
-  [story-id]
-  [rn/button {:title "Open" :on-press #(dispatch [:open-story-external story-id])}])
-
 (def routes {:front-page {:screen (r/reactify-component fp/front-page)
-                          :navigationOptions {:title "Front Page"}}
+                          :navigationOptions fp/navigation-options}
              :story-detail {:screen (r/reactify-component sd/detail-view)
-                            :navigationOptions (fn [_] (let [story (subscribe [:detail-story])]
-                                                         (clj->js {:title (:title @story)
-                                                                   :headerRight (r/as-element (open-story-button (:id @story)))
-                                                                   :headerTitleStyle {:fontSize 12 :fontWeight :bold}})))}})
+                            :navigationOptions sd/navigation-options}})
 
 (def stack-navigator (rn/stack-navigator (clj->js routes)))
 
@@ -39,7 +31,7 @@
 (defn navigation-root
   []
   (let [nav-state (subscribe [:nav-state])]
-    (.log js/console (format-nav-state @nav-state))
+    #_(.log js/console (format-nav-state @nav-state))
     [(r/adapt-react-class stack-navigator) {:navigation (rn/add-navigation-helpers
                                                          (clj->js
                                                           {"state" (format-nav-state @nav-state)

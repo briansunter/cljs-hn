@@ -18,4 +18,4 @@
 (def logging
   (after (fn [db [e]] (.log js/console "EVENT" (clj->js e)))))
 
-(def interceptors [validate-spec logging])
+(def interceptors [] #_[validate-spec logging])
