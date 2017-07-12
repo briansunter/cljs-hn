@@ -17,3 +17,7 @@
    [l/list-view {::l/items (or @(subscribe [:get-front-page-stories]) [])
                  ::l/render-row #(front-page-row %)
                  ::l/on-end-reached #(dispatch [:load-front-page-stories])}] ])
+
+(defn navigation-options
+  []
+  (clj->js {:title "Front Page"}))

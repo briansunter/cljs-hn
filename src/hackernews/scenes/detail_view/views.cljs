@@ -5,6 +5,17 @@
             [hackernews.components.list :as l]
             [re-frame.core :refer [subscribe dispatch]]))
 
+(defn share-story-button
+  [story-id]
+  [rn/button {:title "Share" :on-press #(dispatch [:share-story story-id])}])
+
+(defn navigation-options
+  []
+  (let [story (subscribe [:detail-story])]
+    (clj->js {:title (:title @story)
+              :headerRight (r/as-element (share-story-button (:id @story)))
+              :headerTitleStyle {:fontSize 12 :fontWeight :bold}})))
+
 (defn- on-header-press
   [story-id]
   (dispatch [:open-story-external story-id]))
@@ -37,11 +48,11 @@
     (fn []
       [rn/view {:key id :style {:padding-right 15}} [child-comments s]]))
 
-  (defn detail-view
-    []
-    (let [detail-story (subscribe [:detail-story])
-          comments (subscribe [:current-story-nested-comments])]
-      [rn/view
-       [l/list-view {::l/items (or @comments [])
-                     ::l/header (story-header @detail-story)
-                     ::l/render-row  comment-row}] ]))
+(defn detail-view
+  []
+  (let [detail-story (subscribe [:detail-story])
+        comments (subscribe [:current-story-nested-comments])]
+    [rn/view
+     [l/list-view {::l/items (or @comments [])
+                   ::l/header (story-header @detail-story)
+                   ::l/render-row  comment-row}] ]))
