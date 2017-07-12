@@ -26,3 +26,7 @@
 (defn index-by-id
   [m]
   (update-values first (group-by :id m)))
+
+(defn pop-to-one
+  [s]
+  (if (< 1 (count s)) (pop s) s))

@@ -2,7 +2,7 @@
   (:require
    [re-frame.core :refer [reg-event-db reg-event-fx reg-fx dispatch]]
    [hackernews.api :as api]
-   [hackernews.utils :refer [dec-to-zero]]
+   [hackernews.utils :refer [dec-to-zero pop-to-one]]
    [hackernews.navigation :as nav]
    [hackernews.interceptors :as i]
    [hackernews.db :as db :refer [app-db]]))
@@ -28,7 +28,7 @@
  i/interceptors
  (fn [db _]
    (-> (update-in db [:navigation :router-state :index] dec-to-zero)
-       (update-in [:navigation :router-state :routes] pop))))
+       (update-in [:navigation :router-state :routes] pop-to-one))))
 
 #_(reg-event-db
  :push-stack-nav
