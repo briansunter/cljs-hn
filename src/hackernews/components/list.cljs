@@ -23,7 +23,8 @@
 (defn list-view
   [{:keys [::items ::render-row ::header ::on-end-reached]}]
   (let [ds (rn/ReactNative.ListView.DataSource. #js{:rowHasChanged (fn [a b] false)})]
-    [rn/flat-list (merge {:data (clj->js (map #(assoc % :key (:id %)) items))
+    [rn/flat-list (merge
+                   {:data (clj->js (map #(assoc % :key (:id %)) items))
                     :content-container-style {:padding-bottom 100}
                     :ListHeaderComponent #(r/as-element header)
                           :initial-num-to-render 1

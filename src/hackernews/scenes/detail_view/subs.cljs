@@ -1,10 +1,6 @@
 (ns hackernews.scenes.detail-view.subs
-  (:require [re-frame.core :refer [reg-sub]]))
-
-(defn current-route
-  [db]
-  (let [{:keys [routes index]} (get-in db [:navigation :router-state])]
-    (nth routes index)))
+  (:require [re-frame.core :refer [reg-sub]]
+            [hackernews.navigation :refer [current-route]]))
 
 (defn detail-story
   [db]
@@ -36,18 +32,6 @@
 (defn comments-for-parent-id
   [id comments]
   (filter #(= id (:parent-id %)) comments))
-
-(def test-comments [{:id 1 :parent-id 0 :content "foo"}
-                    {:id 2 :parent-id 1 :content "bar"}
-                    {:id 3 :parent-id 2 :content "bas"}])
-
-(defn walk-comment
-  [all-comments c-node]
-  (if (map? c-node)
-    (assoc c-node :children (comments-for-parent-id (:id c-node) all-comments))
-    c-node))
-
-#_(clojure.walk/prewalk (partial walk-comment test-comments) test-comments)
 
 (reg-sub
  :current-story-nested-comments

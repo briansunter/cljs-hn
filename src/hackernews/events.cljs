@@ -30,11 +30,11 @@
    (-> (update-in db [:navigation :router-state :index] dec-to-zero)
        (update-in [:navigation :router-state :routes] pop-to-one))))
 
-#_(reg-event-db
+(reg-event-db
  :push-stack-nav
  i/interceptors
  (fn [db [_ route-name params]]
-   (nav/push-nav-stack db route-name params)))
+   (update db :navigation #(nav/push-nav-stack % route-name params))))
 
 (reg-event-fx
  :nav/js

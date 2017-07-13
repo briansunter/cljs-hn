@@ -1,4 +1,4 @@
-(ns hackernews.interceptors
+ (ns hackernews.interceptors
   (:require [re-frame.core :refer [after]]
             [cljs.spec :as s]
             [hackernews.db :as db]))
@@ -18,4 +18,4 @@
 (def logging
   (after (fn [db [e]] (.log js/console "EVENT" (clj->js e)))))
 
-(def interceptors [] #_[validate-spec logging])
+(def interceptors #_[validate-spec logging])

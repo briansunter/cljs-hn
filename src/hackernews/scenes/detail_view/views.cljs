@@ -43,16 +43,17 @@
                  ^{:key (:id c)}
                  [child-comments c])]]]))
 
-  (defn comment-row
-    [{:keys [id user time-ago content] :as s}]
-    (fn []
-      [rn/view {:key id :style {:padding-right 15}} [child-comments s]]))
+(defn comment-row
+  [{:keys [id user time-ago content] :as s}]
+  (fn []
+    [rn/view {:key id :style {:padding-right 15}} [child-comments s]]))
 
 (defn detail-view
   []
   (let [detail-story (subscribe [:detail-story])
         comments (subscribe [:current-story-nested-comments])]
-    [rn/view
-     [l/list-view {::l/items (or @comments [])
-                   ::l/header (story-header @detail-story)
-                   ::l/render-row  comment-row}] ]))
+    (r/create-class
+     {:component-did-mount #(dispatch [:load-story-comments (:id @detail-story)])
+      :reagent-render (fn [] [l/list-view {::l/items @comments
+                                           ::l/header (story-header @detail-story)
+                                           ::l/render-row  comment-row}])})))

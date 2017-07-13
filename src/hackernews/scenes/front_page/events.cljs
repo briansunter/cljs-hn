@@ -19,6 +19,7 @@
        (map #(kebab-extras/transform-keys kebab/->kebab-case %))
        (map #(clojure.set/rename-keys % {:object-id :id
                                          :author :user
+                                         :created_at_i :created_at
                                          :comment-text :content}))
        (map #(update % :id js/parseInt))))
 
@@ -49,7 +50,8 @@
    {:db (-> (update (:db cofx) :stories #(merge % (index-by-id stories)))
             (update-in [:front-page :current-page-num] inc))
     ;; :dispatch [:load-story-comments (:id (first stories))]
-    :load-comments-for-stories (map :id stories)}))
+    ;; :load-comments-for-stories (map :id stories)
+    }))
 
 (reg-event-fx
  :failed-loading-front-page-stories
@@ -87,19 +89,9 @@
    (throw (ex-info (str error-response "Failed loading stories") {:response error-response}))
    {:db (:db cofx)}))
 
-(defn push-nav-stack
-  [db route-name params]
-  (let [current-routes (get-in db [:navigation :router-state :routes])
-        last-route (last current-routes)
-        next-route {:route-name :story-detail :params params}]
-    (if (= (:route-name last-route) (:route-name next-route))
-      db
-      (-> (update-in db [:navigation :router-state :index] inc)
-          (update-in [:navigation :router-state :routes] #(conj % next-route))))))
-
 (reg-event-fx
  :nav-story-detail
  i/interceptors
  (fn [cofx [_ story-id]]
-   {:db (push-nav-stack (:db cofx) :story-detail {:story-id story-id})
-    :dispatch [:load-story-comments story-id]}))
+   {:db (:db cofx)
+    :dispatch [:push-stack-nav :story-detail {:story-id story-id}]}))
